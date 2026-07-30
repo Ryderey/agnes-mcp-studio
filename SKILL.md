@@ -7,7 +7,11 @@ description: Use when the user explicitly mentions "agnes" (case-insensitive) AN
 
 ## Overview
 
-MCP-based media generation skill providing text-to-image, image-to-image, and text/image-to-video capabilities through Agnes AI models (`agnes-image-2.0-flash`, `agnes-image-2.1-flash`, `agnes-video-v2.0`).
+MCP-based media generation skill providing text-to-image, image-to-image, image editing, text/image-to-video, and keyframe animation through Agnes AI models.
+
+**Models:** `agnes-image-2.0-flash` · `agnes-image-2.1-flash` · `agnes-video-v2.0`
+
+**Prerequisite:** The `agnes_media` MCP server must be configured and running. If tools are unavailable, ask the user to check their MCP configuration.
 
 ## When to Use
 
@@ -18,6 +22,7 @@ Trigger examples:
 - "用 Agnes 帮我做一个产品宣传视频"
 - "agnes 画一张水彩风格的猫"
 - "AGNES generate a 4K wallpaper of mountains"
+- "用agnes把这张图变成动漫风格"（无空格也匹配）
 
 After the gate passes, match intent:
 - Generate, create, or draw an image
@@ -36,58 +41,57 @@ After the gate passes, match intent:
 
 ## Tool Selection
 
-Choose the appropriate tool based on the task:
-
 | Task | Tool | Key Parameters |
 |------|------|----------------|
-| Standard image generation | `agnes_image_generate` | `size`: exact pixels like `1024x768` |
-| High-detail / high-resolution image | `agnes_image_generate_v2` | `size`: `1K`–`4K`, `ratio`: aspect ratio |
-| Image editing / style transfer | `agnes_image_edit` | `image_paths`: source images |
+| Standard image (text-to-image / img2img) | `agnes_image_generate` | `size`: exact pixels `1024x768`; `image_urls`: reference images |
+| High-resolution image (wallpaper/poster) | `agnes_image_generate_v2` | `size`: `1K`–`4K`; `ratio`: aspect ratio; `image_urls`: optional |
+| Image editing / style transfer | `agnes_image_edit` | `image_paths`: source images (URL or local path) |
 | Multi-image composition | `agnes_image_edit` | `image_paths`: multiple images |
-| Video generation (simple) | `agnes_video_generate` | All-in-one: submit + wait |
-| Video generation (async control) | `agnes_video_submit` then `agnes_video_wait` | Two-step with manual polling |
+| Text-to-video (simple) | `agnes_video_generate` | All-in-one: submit + wait |
+| Image-to-video / animation | `agnes_video_generate` | `image`: source image URL; `mode`: `"ti2vid"` |
+| Video (async with progress) | `agnes_video_submit` → `agnes_video_wait` | Two-step with manual polling |
 
 ### Decision Rules
 
-1. **Default image generation**: Use `agnes_image_generate` with `size="1024x1024"`.
-2. **User requests high resolution, wallpaper, poster, or detailed scene**: Use `agnes_image_generate_v2` with appropriate `size` tier (`2K`, `3K`, `4K`) and `ratio`.
-3. **User provides reference images for editing**: Use `agnes_image_edit`.
-4. **Video under 10 seconds**: Use `agnes_video_generate` directly.
-5. **Video requiring progress feedback**: Use `agnes_video_submit`, report `video_id`, then call `agnes_video_wait`.
+1. **Default image generation** (no special requirements): Use `agnes_image_generate` with `size="1024x1024"`.
+2. **User requests high resolution, wallpaper, poster, 4K, or detailed scene**: Use `agnes_image_generate_v2` with appropriate `size` tier and `ratio`. Default to `size="2K"`, `ratio="16:9"` for wallpapers.
+3. **User provides reference images for editing/compositing**: Use `agnes_image_edit` with `image_paths`.
+4. **User provides a reference image but wants a NEW image in similar style**: Use `agnes_image_generate` or `_v2` with `image_urls`.
+5. **Video ≤ 18 seconds (all cases)**: Use `agnes_video_generate` directly.
+6. **Video requiring progress feedback or very long timeout**: Use `agnes_video_submit`, report `video_id` to user, then call `agnes_video_wait`.
+7. **Animate a still image**: Use `agnes_video_generate` with `image=<url>` and `mode="ti2vid"`.
 
-## Image Prompt Construction
+## Prompt Construction
 
-Build prompts using this structure for best results:
+### Image Prompts
 
-```
-[Subject] + [Scene / Background] + [Style] + [Lighting] + [Composition] + [Quality]
-```
+Structure: `[Subject] + [Scene/Background] + [Style] + [Lighting] + [Composition] + [Quality]`
 
-Example:
 ```
 A professional product photo of wireless headphones on a clean white background,
 soft studio lighting, sharp details, commercial photography style
 ```
 
-For image editing prompts, specify what to change AND what to preserve:
+For image editing, specify what to change AND what to preserve:
 ```
 Change the background to a futuristic city at night while keeping the person's
 face, outfit, and pose unchanged
 ```
 
-## Video Prompt Construction
+### Video Prompts
 
-Build video prompts using:
+Structure: `[Subject] + [Action] + [Scene] + [Camera Movement] + [Lighting] + [Style]`
 
-```
-[Subject] + [Action] + [Scene] + [Camera Movement] + [Lighting] + [Style]
-```
-
-Example:
 ```
 A young astronaut walking across a red desert planet, dust blowing in the wind,
 slow cinematic tracking shot, dramatic sunset lighting, realistic sci-fi style
 ```
+
+### Prompt Tips
+
+- Chinese prompts work well; no need to translate to English.
+- Use `negative_prompt` (video tools) to exclude unwanted elements, e.g. `"blurry, low quality, watermark"`.
+- Be specific about camera movement for video: "slow dolly in", "tracking shot", "static camera".
 
 ## Video Workflow
 
@@ -95,47 +99,53 @@ Video generation is asynchronous. Follow this workflow:
 
 1. Call `agnes_video_generate` (or `agnes_video_submit` + `agnes_video_wait`)
 2. Inform the user that video generation typically takes 30 seconds to several minutes
-3. On success, present the `local_path` (downloaded file) and/or `video_url`
-4. On timeout, report the `video_id` so the user can check status later with `agnes_video_status`
+3. On success: present the `local_path` (downloaded file) and/or `video_url`
+4. On timeout: report the `video_id` so the user can check status later with `agnes_video_status`
 
-### Video Duration Guidelines
+### Video Duration & Resolution
 
-| Duration | Setting |
-|----------|---------|
-| ~3 seconds | `duration=3` |
-| ~5 seconds | `duration=5` (default) |
-| ~10 seconds | `duration=10` |
-| ~18 seconds (max) | `duration=18` |
+| Duration | Setting | Notes |
+|----------|---------|-------|
+| ~3 seconds | `duration=3` | Quick preview |
+| ~5 seconds | `duration=5` | Default |
+| ~10 seconds | `duration=10` | Standard clip |
+| ~18 seconds | `duration=18` | Maximum |
 
-The tool automatically aligns frame count to the required `8n+1` rule. Maximum is ~18 seconds at 24fps.
+Resolution options: `"480p"`, `"720p"` (default), `"1080p"`.
+Aspect ratios: `"16:9"` (default), `"9:16"`, `"1:1"`, `"4:3"`, `"3:4"`.
+
+Frame count is auto-aligned to the `8n+1` rule (max 441 frames at 24fps).
 
 ## Size Reference for agnes_image_generate_v2
 
-| Ratio | 1K | 2K | 4K |
-|-------|----|----|-----|
-| `1:1` | 1024×1024 | 2048×2048 | 4096×4096 |
-| `16:9` | 1312×736 | 2624×1472 | 5248×2944 |
-| `9:16` | 736×1312 | 1472×2624 | 2944×5248 |
-| `4:3` | 1152×864 | 2304×1728 | 4608×3456 |
-| `3:4` | 864×1152 | 1728×2304 | 3456×4608 |
+| Ratio | 1K | 2K | 3K | 4K |
+|-------|----|----|----|-----|
+| `1:1` | 1024×1024 | 2048×2048 | 3072×3072 | 4096×4096 |
+| `16:9` | 1312×736 | 2624×1472 | 3936×2208 | 5248×2944 |
+| `9:16` | 736×1312 | 1472×2624 | 2208×3936 | 2944×5248 |
+| `4:3` | 1152×864 | 2304×1728 | 3456×2592 | 4608×3456 |
+| `3:4` | 864×1152 | 1728×2304 | 2592×3456 | 3456×4608 |
+| `3:2` | 1248×832 | 2496×1664 | 3744×2496 | 4992×3328 |
+| `2:3` | 832×1248 | 1664×2496 | 2496×3744 | 3328×4992 |
+| `21:9` | 1344×576 | 2688×1152 | 4032×1728 | 5376×2304 |
 
 ## Constraints
 
-- Do NOT place `response_format` at the top level of any request; the tool handles this internally via `extra_body`.
-- Do NOT pass `tags: ["img2img"]`; image-to-image uses `image_urls` parameter directly.
-- Video `num_frames` is auto-aligned; do not manually calculate frame counts.
-- Input images must be publicly accessible HTTPS URLs or local file paths (auto-converted to Data URI Base64).
-- `mask_path` is not supported; do not attempt to use it.
+- Input images must be publicly accessible HTTPS URLs or local file paths (local files are auto-converted to Base64 Data URI).
+- `mask_path` is not supported; if user asks for inpainting with mask, explain it's unavailable.
 - Video results may take 30s–5min depending on duration and server load.
+- The tool handles `response_format`, `extra_body`, and `num_frames` alignment internally — do not pass these manually.
 
 ## Error Handling
 
 | Error Code | Meaning | Action |
 |------------|---------|--------|
-| `missing_api_key` | `AGNES_API_KEY` not set | Ask user to configure their API key |
+| `missing_api_key` | `AGNES_API_KEY` not set | Ask user to configure their API key in MCP settings |
 | `invalid_prompt` | Empty prompt | Ask user for a description |
-| `http_error` (400) | Invalid parameters | Check size/ratio values against reference |
+| `unsupported_parameter` | Used `mask_path` | Explain mask/inpainting is not supported |
+| `http_error` (400) | Invalid parameters | Check size/ratio values against reference table |
 | `http_error` (401) | Invalid API key | Ask user to verify their key |
+| `http_error` (429) | Rate limited | Wait a moment and retry |
 | `timeout` | Video task timed out | Report `video_id` for later status check |
 | `task_failed` | Video generation failed | Report error details, suggest retrying with simpler prompt |
 
@@ -143,5 +153,13 @@ The tool automatically aligns frame count to the required `8n+1` rule. Maximum i
 
 - Images are saved to `outputs/images/` automatically. Present the `local_paths` to the user.
 - Videos are saved to `outputs/videos/` when `download=True` (default). Present the `local_path`.
-- Always show generated images to the user using Markdown image syntax when possible.
-- For videos, provide the file path and/or remote URL.
+- **Always show generated images inline** using Markdown:
+  ```
+  ![generated image](/absolute/path/to/output.png)
+  ```
+- For videos, provide the file path and/or remote URL:
+  ```
+  视频已生成：`/path/to/outputs/videos/agnes-media-xxx.mp4`
+  远程链接：https://...
+  ```
+- If multiple images are returned, show all of them.
