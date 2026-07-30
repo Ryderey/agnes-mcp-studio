@@ -9,7 +9,7 @@
 | `AGNES_IMAGE_MODEL` | 否 | `agnes-image-2.0-flash` | 图像生成默认模型 |
 | `AGNES_IMAGE_MODEL_V2` | 否 | `agnes-image-2.1-flash` | 图像生成 v2 默认模型 |
 | `AGNES_VIDEO_MODEL` | 否 | `agnes-video-v2.0` | 视频生成默认模型 |
-| `AGNES_OUTPUT_DIR` | 否 | `./outputs` | 生成文件输出目录 |
+| `AGNES_OUTPUT_DIR` | 否 | 源码树: `项目根/outputs`；安装后: `CWD/outputs` | 生成文件输出目录（建议使用绝对路径） |
 
 ## 获取 API Key
 
@@ -40,27 +40,50 @@ AGNES_OUTPUT_DIR=./outputs
 
 服务启动时通过 `python-dotenv` 自动加载 `.env` 文件。
 
-## Hermes 集成配置
+## MCP 客户端集成配置
+
+### 通用 JSON 格式（Claude Desktop / Cursor / Qoder 等）
+
+<!-- TODO: 发布前将 "你的用户名" 替换为实际仓库地址 -->
+
+```json
+{
+  "mcpServers": {
+    "agnes_media": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/你的用户名/agnes-media-mcp",
+        "agnes-media-mcp"
+      ],
+      "env": {
+        "AGNES_API_KEY": "sk-your-real-key-here",
+        "AGNES_OUTPUT_DIR": "/absolute/path/to/outputs"
+      }
+    }
+  }
+}
+```
+
+### Hermes 配置（YAML）
 
 在 Hermes 配置文件中添加 MCP 服务器：
 
 ```yaml
 mcp_servers:
   agnes_media:
-    command: "/home/ryl/.local/bin/uv"
+    command: "uvx"
     args:
-      - "--directory"
-      - "/home/ryl/mcp/agnes-media"
-      - "run"
-      - "python"
-      - "agnes_media_mcp.py"
+      - "--from"
+      - "git+https://github.com/你的用户名/agnes-media-mcp"
+      - "agnes-media-mcp"
     env:
       AGNES_API_KEY: "sk-your-real-key-here"
       AGNES_BASE_URL: "https://api.agnes-ai.cn/v1"
       AGNES_IMAGE_MODEL: "agnes-image-2.0-flash"
       AGNES_IMAGE_MODEL_V2: "agnes-image-2.1-flash"
       AGNES_VIDEO_MODEL: "agnes-video-v2.0"
-      AGNES_OUTPUT_DIR: "/home/ryl/mcp/agnes-media/outputs"
+      AGNES_OUTPUT_DIR: "/absolute/path/to/outputs"
     timeout: 600
     connect_timeout: 60
     tools:
@@ -80,8 +103,8 @@ mcp_servers:
 
 | 字段 | 说明 |
 |------|------|
-| `command` | uv 可执行文件路径 |
-| `args` | 工作目录 + 启动脚本 |
+| `command` | `uvx`（uv 自带的包运行器，跨平台可用） |
+| `args` | `--from git+<repo>` 指定源，`agnes-media-mcp` 为控制台入口名 |
 | `env` | 环境变量（API Key 在此配置） |
 | `timeout` | 工具调用超时（秒），视频生成建议 600 |
 | `connect_timeout` | 连接超时（秒） |
@@ -225,7 +248,17 @@ WorkBuddy 支持通过自定义模型接入 Agnes 文本模型，并可通过 Sk
 
 ## 安装依赖
 
+### 方式一：uvx 直接运行（无需 clone）
+
 ```bash
+uvx --from git+https://github.com/你的用户名/agnes-media-mcp agnes-media-mcp
+```
+
+### 方式二：本地开发
+
+```bash
+git clone https://github.com/你的用户名/agnes-media-mcp
+cd agnes-media-mcp
 uv sync
 ```
 
@@ -241,13 +274,13 @@ uv sync
 
 ```bash
 # 检查模块导入
-uv run python -c "import agnes_media_mcp; print('ok')"
+uv run python -c "from agnes_media_mcp.server import mcp; print('ok')"
 
 # 运行单元测试
-uv run python -m unittest discover -s tests
+uv run python -m pytest tests/ -v
 
 # 检查 MCP 工具注册
-uv run fastmcp list agnes_media_mcp.py --json
+uv run fastmcp list src/agnes_media_mcp/server.py --json
 
 # Hermes 侧验证
 hermes mcp list

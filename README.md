@@ -60,10 +60,23 @@
 
 ## 快速开始
 
-### 安装
+<!-- TODO: 发布前全局替换 "你的用户名" 为实际 GitHub 用户名/组织名 -->
+
+### 方式一：uvx 直接运行（推荐，无需 clone）
+
+只需安装 [uv](https://docs.astral.sh/uv/)，即可一行启动：
 
 ```bash
+uvx --from git+https://github.com/你的用户名/agnes-media-mcp agnes-media-mcp
+```
+
+### 方式二：本地开发
+
+```bash
+git clone https://github.com/你的用户名/agnes-media-mcp
+cd agnes-media-mcp
 uv sync
+uv run agnes-media-mcp
 ```
 
 ### 配置环境变量
@@ -81,25 +94,45 @@ AGNES_OUTPUT_DIR=./outputs
 
 `AGNES_API_KEY` 为必填项，其余均有默认值。
 
-### Hermes 配置
+### MCP 客户端配置（通用 JSON 格式）
+
+适用于 Claude Desktop、Cursor、Qoder 等支持 MCP 的客户端：
+
+```json
+{
+  "mcpServers": {
+    "agnes_media": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/你的用户名/agnes-media-mcp",
+        "agnes-media-mcp"
+      ],
+      "env": {
+        "AGNES_API_KEY": "your_agnes_api_key_here"
+      }
+    }
+  }
+}
+```
+
+### Hermes 配置（YAML）
 
 ```yaml
 mcp_servers:
   agnes_media:
-    command: "/home/ryl/.local/bin/uv"
+    command: "uvx"
     args:
-      - "--directory"
-      - "/home/ryl/mcp/agnes-media"
-      - "run"
-      - "python"
-      - "agnes_media_mcp.py"
+      - "--from"
+      - "git+https://github.com/你的用户名/agnes-media-mcp"
+      - "agnes-media-mcp"
     env:
       AGNES_API_KEY: "your_agnes_api_key_here"
       AGNES_BASE_URL: "https://api.agnes-ai.cn/v1"
       AGNES_IMAGE_MODEL: "agnes-image-2.0-flash"
       AGNES_IMAGE_MODEL_V2: "agnes-image-2.1-flash"
       AGNES_VIDEO_MODEL: "agnes-video-v2.0"
-      AGNES_OUTPUT_DIR: "/home/ryl/mcp/agnes-media/outputs"
+      AGNES_OUTPUT_DIR: "./outputs"
     timeout: 600
     connect_timeout: 60
     tools:
@@ -118,10 +151,10 @@ mcp_servers:
 ## 验证
 
 ```bash
-uv run python -c "import agnes_media_mcp; print('import ok')"
-uv run python -m unittest discover -s tests
-uv run fastmcp inspect agnes_media_mcp.py:mcp
-uv run fastmcp list agnes_media_mcp.py --json
+uv run python -c "from agnes_media_mcp.server import mcp; print('import ok')"
+uv run python -m pytest tests/ -v
+uv run fastmcp inspect src/agnes_media_mcp/server.py:mcp
+uv run fastmcp list src/agnes_media_mcp/server.py --json
 ```
 
 Hermes 侧检查：
@@ -137,9 +170,9 @@ hermes mcp test agnes_media
 ### 图像生成（2.0 Flash）
 
 ```python
-import agnes_media_mcp as agnes
+from agnes_media_mcp.server import agnes_image_generate
 
-result = agnes.agnes_image_generate(
+result = agnes_image_generate(
     prompt="一只陶瓷咖啡杯放在钢制桌面上，柔和光线",
     size="1024x1024",
 )
@@ -148,7 +181,9 @@ result = agnes.agnes_image_generate(
 ### 图像生成（2.1 Flash，分级尺寸）
 
 ```python
-result = agnes.agnes_image_generate_v2(
+from agnes_media_mcp.server import agnes_image_generate_v2
+
+result = agnes_image_generate_v2(
     prompt="赛博朋克城市夜景，霓虹灯反射，电影质感",
     size="2K",
     ratio="16:9",
@@ -158,7 +193,9 @@ result = agnes.agnes_image_generate_v2(
 ### 视频生成
 
 ```python
-result = agnes.agnes_video_generate(
+from agnes_media_mcp.server import agnes_video_generate
+
+result = agnes_video_generate(
     prompt="缓慢推进镜头，玻璃雕塑在画廊中旋转",
     duration=5,
     resolution="720p",

@@ -23,7 +23,12 @@ DEFAULT_BASE_URL = "https://api.agnes-ai.cn/v1"
 DEFAULT_IMAGE_MODEL = "agnes-image-2.0-flash"
 DEFAULT_IMAGE_MODEL_V2 = "agnes-image-2.1-flash"
 DEFAULT_VIDEO_MODEL = "agnes-video-v2.0"
-DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent / "outputs"
+# 可编辑源码树中锚定项目根；安装到 site-packages 时退化到 CWD
+_src_root = Path(__file__).resolve().parent.parent.parent
+if (_src_root / "pyproject.toml").exists():
+    DEFAULT_OUTPUT_DIR = _src_root / "outputs"
+else:
+    DEFAULT_OUTPUT_DIR = Path.cwd() / "outputs"
 
 VIDEO_URL_FIELDS = (
     "video_url",
@@ -986,5 +991,10 @@ def agnes_video_generate(
     )
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Console-script entry point for ``uvx agnes-media-mcp``."""
     mcp.run()
+
+
+if __name__ == "__main__":
+    main()

@@ -7,5 +7,6 @@ __pycache__/
 *.py[cod]
 
 outputs/
+dist/
 
 .DS_Store

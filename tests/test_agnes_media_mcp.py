@@ -6,7 +6,7 @@ from unittest import mock
 
 class AgnesMediaMcpTests(unittest.TestCase):
     def test_image_payload_places_images_and_response_format_in_extra_body(self):
-        import agnes_media_mcp as agnes
+        import agnes_media_mcp.server as agnes
 
         payload = agnes._build_image_payload(
             prompt="turn this into a watercolor poster",
@@ -32,7 +32,7 @@ class AgnesMediaMcpTests(unittest.TestCase):
         )
 
     def test_image_payload_supports_ratio_and_return_base64(self):
-        import agnes_media_mcp as agnes
+        import agnes_media_mcp.server as agnes
 
         payload = agnes._build_image_payload(
             prompt="a futuristic city",
@@ -49,7 +49,7 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertNotIn("extra_body", payload)
 
     def test_image_payload_does_not_include_n_or_quality(self):
-        import agnes_media_mcp as agnes
+        import agnes_media_mcp.server as agnes
 
         payload = agnes._build_image_payload(
             prompt="simple image",
@@ -62,7 +62,7 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertNotIn("tags", payload)
 
     def test_image_edit_rejects_mask_without_api_call(self):
-        import agnes_media_mcp as agnes
+        import agnes_media_mcp.server as agnes
 
         with mock.patch.object(agnes, "_request_json") as request_json:
             result = agnes._agnes_image_edit_impl(
@@ -76,7 +76,7 @@ class AgnesMediaMcpTests(unittest.TestCase):
         request_json.assert_not_called()
 
     def test_video_payload_converts_duration_and_aligns_to_8n_plus_1(self):
-        import agnes_media_mcp as agnes
+        import agnes_media_mcp.server as agnes
 
         payload = agnes._build_video_payload(
             prompt="slow dolly shot of a porcelain vase",
@@ -98,7 +98,7 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertEqual(payload["seed"], 123)
 
     def test_video_payload_num_frames_capped_at_441(self):
-        import agnes_media_mcp as agnes
+        import agnes_media_mcp.server as agnes
 
         payload = agnes._build_video_payload(
             prompt="very long video",
@@ -113,7 +113,7 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertEqual(payload["num_frames"], 441)
 
     def test_video_payload_uses_image_and_mode(self):
-        import agnes_media_mcp as agnes
+        import agnes_media_mcp.server as agnes
 
         payload = agnes._build_video_payload(
             prompt="animate this image",
@@ -131,7 +131,7 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertNotIn("image_url", payload)
 
     def test_video_status_extracts_url_from_metadata(self):
-        import agnes_media_mcp as agnes
+        import agnes_media_mcp.server as agnes
 
         response = {
             "id": "task-123",
@@ -152,7 +152,7 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertEqual(result["video_url"], "https://cdn.example.test/video.mp4")
 
     def test_video_status_uses_agnesapi_endpoint(self):
-        import agnes_media_mcp as agnes
+        import agnes_media_mcp.server as agnes
 
         response = {"id": "task-1", "video_id": "vid-1", "status": "queued"}
 
@@ -163,7 +163,7 @@ class AgnesMediaMcpTests(unittest.TestCase):
         mock_req.assert_called_once_with("GET", "/agnesapi?video_id=vid-1")
 
     def test_video_submit_returns_video_id(self):
-        import agnes_media_mcp as agnes
+        import agnes_media_mcp.server as agnes
 
         response = {
             "id": "task-abc",
@@ -182,7 +182,7 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertEqual(result["status"], "queued")
 
     def test_video_wait_times_out_with_last_response(self):
-        import agnes_media_mcp as agnes
+        import agnes_media_mcp.server as agnes
 
         status_response = {
             "ok": True,
@@ -209,7 +209,7 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertEqual(result["last_response"], status_response)
 
     def test_output_directories_are_created_from_env(self):
-        import agnes_media_mcp as agnes
+        import agnes_media_mcp.server as agnes
 
         with tempfile.TemporaryDirectory() as temp_dir:
             with mock.patch.dict(os.environ, {"AGNES_OUTPUT_DIR": temp_dir}, clear=False):
@@ -220,7 +220,7 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertEqual(video_dir.name, "videos")
 
     def test_align_num_frames(self):
-        import agnes_media_mcp as agnes
+        import agnes_media_mcp.server as agnes
 
         # Exact 8n+1 values pass through
         self.assertEqual(agnes._align_num_frames(1), 1)
