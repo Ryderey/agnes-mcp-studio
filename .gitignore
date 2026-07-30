@@ -9,4 +9,6 @@ __pycache__/
 outputs/
 dist/
 
+node_modules/
+
 .DS_Store

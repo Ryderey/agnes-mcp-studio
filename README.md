@@ -17,7 +17,9 @@
 
 ## 工作流程
 
-完整流程图见 [docs/workflow.drawio](docs/workflow.drawio)（在 GitHub 上点击即可查看，或用 [draw.io](https://app.diagrams.net) 打开编辑）。
+完整流程图见 [docs/workflow.svg](docs/workflow.svg)（GitHub 上直接渲染），源文件 [docs/workflow.drawio](docs/workflow.drawio) 可用 [draw.io](https://app.diagrams.net) 编辑。
+
+> 重新生成 SVG：`node docs/gen-workflow.mjs`（依赖 `ai-figure`，已声明在 devDependencies）。
 
 **流程概览：**
 
