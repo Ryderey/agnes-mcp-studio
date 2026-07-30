@@ -4,6 +4,17 @@
 
 本服务通过环境变量读取凭据，请勿将真实 API Key 放入版本控制文件。
 
+## 这是什么？
+
+本项目由两部分组成，**配套使用**：
+
+| 组件 | 文件 | 作用 |
+|------|------|------|
+| **MCP Server** | `src/agnes_media_mcp/` | 执行层——接收工具调用，请求 Agnes API，保存生成结果 |
+| **Skill** | `SKILL.md` | 决策层——告诉 AI Agent 何时激活、选哪个工具、如何构造 Prompt、如何展示结果 |
+
+简单说：**Skill 是大脑，MCP 是双手**。只装 MCP 不装 Skill，Agent 不知道何时该调用这些工具；只装 Skill 不装 MCP，Agent 知道该做什么但没有工具可用。
+
 ## 工作流程
 
 完整流程图见 [docs/workflow.drawio](docs/workflow.drawio)（在 GitHub 上点击即可查看，或用 [draw.io](https://app.diagrams.net) 打开编辑）。
@@ -58,43 +69,32 @@
 | `agnes_video_wait` | 轮询任务直至完成、失败或超时 |
 | `agnes_video_generate` | 提交视频任务并等待完成（submit + wait 组合） |
 
-## 快速开始
+## 完整安装配置指南
 
-### 方式一：uvx 直接运行（推荐，无需 clone）
+> 前提：已安装 [uv](https://docs.astral.sh/uv/)（一行脚本即可安装，支持 Windows / macOS / Linux）。
 
-只需安装 [uv](https://docs.astral.sh/uv/)，即可一行启动：
+### 第一步：安装 Skill
 
+Skill 是一个 Markdown 文件，告诉 AI Agent 如何智能地使用本工具。将 `SKILL.md` 复制到你的 Agent 的 Skills 目录：
+
+**Hermes：**
 ```bash
-uvx --from git+https://github.com/Ryderey/agnes-mcp-studio agnes-media-mcp
-```
-
-### 方式二：本地开发
-
-```bash
+# 克隆仓库（或仅下载 SKILL.md）
 git clone https://github.com/Ryderey/agnes-mcp-studio
-cd agnes-media-mcp
-uv sync
-uv run agnes-media-mcp
+
+# 复制 Skill 到 Hermes skills 目录
+cp agnes-mcp-studio/SKILL.md ~/.hermes/skills/agnes-media-generation.md
 ```
 
-### 配置环境变量
+**Qoder / Cursor / 其他支持 Skill 的客户端：**
 
-复制 `.env.example` 为 `.env` 进行本地测试：
+将 `SKILL.md` 复制到对应的 Skills/Plugins 目录，或通过客户端的「安装 Skill」功能导入。
 
-```bash
-AGNES_API_KEY=your_agnes_api_key_here
-AGNES_BASE_URL=https://api.agnes-ai.cn/v1
-AGNES_IMAGE_MODEL=agnes-image-2.0-flash
-AGNES_IMAGE_MODEL_V2=agnes-image-2.1-flash
-AGNES_VIDEO_MODEL=agnes-video-v2.0
-AGNES_OUTPUT_DIR=./outputs
-```
+### 第二步：配置 MCP Server
 
-`AGNES_API_KEY` 为必填项，其余均有默认值。
+在你的 Agent 配置文件中添加 MCP 服务器。
 
-### MCP 客户端配置（通用 JSON 格式）
-
-适用于 Claude Desktop、Cursor、Qoder 等支持 MCP 的客户端：
+**通用 JSON 格式**（Claude Desktop / Cursor / Qoder）：
 
 ```json
 {
@@ -114,7 +114,7 @@ AGNES_OUTPUT_DIR=./outputs
 }
 ```
 
-### Hermes 配置（YAML）
+**Hermes YAML 格式：**
 
 ```yaml
 mcp_servers:
@@ -126,27 +126,79 @@ mcp_servers:
       - "agnes-media-mcp"
     env:
       AGNES_API_KEY: "your_agnes_api_key_here"
-      AGNES_BASE_URL: "https://api.agnes-ai.cn/v1"
-      AGNES_IMAGE_MODEL: "agnes-image-2.0-flash"
-      AGNES_IMAGE_MODEL_V2: "agnes-image-2.1-flash"
-      AGNES_VIDEO_MODEL: "agnes-video-v2.0"
-      AGNES_OUTPUT_DIR: "./outputs"
+      AGNES_OUTPUT_DIR: "/absolute/path/to/outputs"
     timeout: 600
     connect_timeout: 60
-    tools:
-      include:
-        - agnes_image_generate
-        - agnes_image_generate_v2
-        - agnes_image_edit
-        - agnes_video_submit
-        - agnes_video_status
-        - agnes_video_wait
-        - agnes_video_generate
-      prompts: false
-      resources: false
 ```
 
-## 验证
+### 第三步：获取 API Key
+
+1. 登录 [Agnes AI 控制台](https://www.agnes-ai.cn)
+2. 进入 API Key 管理页面，创建并复制 Key
+3. 将 Key 填入上一步配置中的 `AGNES_API_KEY`
+
+### 第四步：验证
+
+重启 Agent 后，确认 MCP 服务已连接：
+
+```bash
+# Hermes
+hermes mcp list
+hermes mcp test agnes_media
+```
+
+其他客户端通常在设置界面可查看 MCP 连接状态。
+
+### 可选：本地开发模式
+
+如果你想修改源码或调试：
+
+```bash
+git clone https://github.com/Ryderey/agnes-mcp-studio
+cd agnes-mcp-studio
+uv sync
+cp .env.example .env   # 编辑 .env 填入 API Key
+uv run agnes-media-mcp
+```
+
+## 使用示例
+
+安装配置完成后，在对话中提及 **agnes** 关键词即可触发。以下是实际对话示例：
+
+### 生成图像
+
+> **你：** 用 agnes 生成一张赛博朋克城市夜景，16:9 壁纸，2K 分辨率
+>
+> **Agent：** 调用 `agnes_image_generate_v2`（size=2K, ratio=16:9）→ 返回图片文件
+>
+> **你获得：** 一张 2624×1472 的图像，保存在 `outputs/images/` 目录
+
+### 编辑图像
+
+> **你：** 用 agnes 把这张照片的背景换成星空，保持人物不变 [附图]
+>
+> **Agent：** 调用 `agnes_image_edit`（image_paths=[你的图片], prompt=...）→ 返回编辑后的图片
+
+### 生成视频
+
+> **你：** 用 agnes 做一个 5 秒的视频：一只猫在窗台上打盹，阳光慢慢移动
+>
+> **Agent：** 调用 `agnes_video_generate`（duration=5, resolution=720p）→ 等待 30s~3min → 返回视频文件
+>
+> **你获得：** 一个 MP4 文件，保存在 `outputs/videos/` 目录
+
+### 触发规则
+
+| 你说的话 | 是否触发 |
+|----------|----------|
+| “用 agnes 画一只猫” | ✅ 触发（包含 agnes + 图像生成意图） |
+| “帮我生成一张图片” | ❌ 不触发（未提及 agnes） |
+| “agnes 是什么？” | ❌ 不触发（无生成意图） |
+| “AGNES generate a wallpaper” | ✅ 触发（不区分大小写） |
+
+## 开发者参考
+
+### 本地验证
 
 ```bash
 uv run python -c "from agnes_media_mcp.server import mcp; print('import ok')"
@@ -155,44 +207,27 @@ uv run fastmcp inspect src/agnes_media_mcp/server.py:mcp
 uv run fastmcp list src/agnes_media_mcp/server.py --json
 ```
 
-Hermes 侧检查：
+### Python API 直接调用
 
-```bash
-hermes config edit
-hermes mcp list
-hermes mcp test agnes_media
-```
-
-## 使用示例
-
-### 图像生成（2.0 Flash）
+以下为无需通过 Agent 的编程调用示例：
 
 ```python
-from agnes_media_mcp.server import agnes_image_generate
+from agnes_media_mcp.server import agnes_image_generate, agnes_image_generate_v2, agnes_video_generate
 
+# 标准图像生成
 result = agnes_image_generate(
     prompt="一只陶瓷咖啡杯放在钢制桌面上，柔和光线",
     size="1024x1024",
 )
-```
 
-### 图像生成（2.1 Flash，分级尺寸）
-
-```python
-from agnes_media_mcp.server import agnes_image_generate_v2
-
+# 高分辨率图像生成
 result = agnes_image_generate_v2(
     prompt="赛博朋克城市夜景，霓虹灯反射，电影质感",
     size="2K",
     ratio="16:9",
 )
-```
 
-### 视频生成
-
-```python
-from agnes_media_mcp.server import agnes_video_generate
-
+# 视频生成
 result = agnes_video_generate(
     prompt="缓慢推进镜头，玻璃雕塑在画廊中旋转",
     duration=5,
