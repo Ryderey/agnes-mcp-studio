@@ -1,85 +1,109 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1378" height="523" viewBox="0 0 1378 523">
-<text x="689" y="34" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#495057">Agnes Media MCP 工作流程</text>
-<text x="689" y="53" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#868e96">Skill（决策层）+ MCP Server（执行层）+ Agnes API（推理层）</text>
-<g class="swimlane-diagram" transform="translate(0,67)">
-<defs><marker id="sw-1-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><polygon points="0 0, 8 3, 0 6, 1.5 3" fill="#495057"/></marker></defs>
-<rect x="130" y="0" width="1248" height="114" fill="none" stroke="none"/>
-<line x1="0" y1="0" x2="1378" y2="0" stroke="#868e96" stroke-width="1.5"/>
-<rect x="0" y="0" width="130" height="114" fill="#868e96" fill-opacity="0.08" stroke="none"/>
-<line x1="130" y1="0" x2="130" y2="114" stroke="#868e96" stroke-width="1.5"/>
-<text x="65" y="57" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#495057">用户</text>
-<rect x="130" y="114" width="1248" height="114" fill="rgba(134,142,150,0.06)" stroke="none"/>
-<line x1="0" y1="114" x2="1378" y2="114" stroke="#868e96" stroke-width="1.5"/>
-<rect x="0" y="114" width="130" height="114" fill="#868e96" fill-opacity="0.14" stroke="none"/>
-<line x1="130" y1="114" x2="130" y2="228" stroke="#868e96" stroke-width="1.5"/>
-<text x="65" y="171" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#495057">Skill 决策层</text>
-<rect x="130" y="228" width="1248" height="114" fill="none" stroke="none"/>
-<line x1="0" y1="228" x2="1378" y2="228" stroke="#868e96" stroke-width="1.5"/>
-<rect x="0" y="228" width="130" height="114" fill="#868e96" fill-opacity="0.2" stroke="none"/>
-<line x1="130" y1="228" x2="130" y2="342" stroke="#868e96" stroke-width="1.5"/>
-<text x="65" y="285" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#495057">MCP Server</text>
-<rect x="130" y="342" width="1248" height="114" fill="rgba(134,142,150,0.06)" stroke="none"/>
-<line x1="0" y1="342" x2="1378" y2="342" stroke="#868e96" stroke-width="1.5"/>
-<rect x="0" y="342" width="130" height="114" fill="#868e96" fill-opacity="0.26" stroke="none"/>
-<line x1="130" y1="342" x2="130" y2="456" stroke="#868e96" stroke-width="1.5"/>
-<text x="65" y="399" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#495057">Agnes API</text>
-<line x1="0" y1="456" x2="1378" y2="456" stroke="#868e96" stroke-width="1.5"/>
-<path d="M254,82 C254,114 254,114 254,146" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<path d="M330,171 L378,171" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<text x="354" y="163" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="11" fill="#495057" opacity="0.85">否</text>
-<path d="M330,171 L578,171" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<text x="454" y="163" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="11" fill="#495057" opacity="0.85">是</text>
-<path d="M730,171 L778,171" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<path d="M930,171 L978,171" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<path d="M1054,196 C1054,228 254,228 254,260" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<text x="654" y="222" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="11" fill="#495057" opacity="0.85">MCP 调用</text>
-<path d="M254,310 C254,342 254,342 254,374" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<text x="254" y="336" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="11" fill="#495057" opacity="0.85">HTTPS</text>
-<path d="M330,399 L378,399" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<path d="M530,399 L578,399" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<text x="554" y="391" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="11" fill="#495057" opacity="0.85">图像</text>
-<path d="M530,399 L778,399" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<text x="654" y="391" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="11" fill="#495057" opacity="0.85">视频</text>
-<path d="M654,424 C654,342 454,342 454,260" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<path d="M854,424 C854,342 454,342 454,260" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<path d="M454,310 C454,228 1254,228 1254,146" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<path d="M1254,196 C1254,114 454,114 454,32" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#sw-1-arrow)"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
-<rect x="178" y="32" width="152" height="50" rx="8" ry="8" fill="#ebfbee" stroke="#51cf66" stroke-width="2"/>
-<text x="254" y="57" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#2f9e44">发送请求: 包含 agnes 关键词</text>
-<rect x="378" y="32" width="152" height="50" rx="8" ry="8" fill="#ebfbee" stroke="#51cf66" stroke-width="2"/>
-<text x="454" y="57" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#2f9e44">获得媒体文件</text>
-<rect x="178" y="146" width="152" height="50" rx="8" ry="8" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
-<text x="254" y="171" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#e67700">关键字门控: 包含 agnes?</text>
-<rect x="378" y="146" width="152" height="50" rx="8" ry="8" fill="#ebfbee" stroke="#51cf66" stroke-width="2"/>
-<text x="454" y="171" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#2f9e44">不激活, 交给其他工具</text>
-<rect x="578" y="146" width="152" height="50" rx="8" ry="8" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
-<text x="654" y="171" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">意图匹配: 图像/编辑/视频</text>
-<rect x="778" y="146" width="152" height="50" rx="8" ry="8" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
-<text x="854" y="154.1" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">选择工具:</text>
-<text x="854" y="171" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">image_generate /</text>
-<text x="854" y="187.9" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">v2 / edit / video</text>
-<rect x="978" y="146" width="152" height="50" rx="8" ry="8" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
-<text x="1054" y="162.55" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">构造 Prompt:</text>
-<text x="1054" y="179.45000000000002" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">主体+场景+风格+光线+构图</text>
-<rect x="1178" y="146" width="152" height="50" rx="8" ry="8" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
-<text x="1254" y="162.55" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">展示结果: Markdown</text>
-<text x="1254" y="179.45000000000002" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">图片/路径/URL</text>
-<rect x="178" y="260" width="152" height="50" rx="8" ry="8" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
-<text x="254" y="276.55" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">协议适配: payload构建 /</text>
-<text x="254" y="293.45" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">Base64 / 8n+1对齐</text>
-<rect x="378" y="260" width="152" height="50" rx="8" ry="8" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
-<text x="454" y="268.1" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">保存文件:</text>
-<text x="454" y="285" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">outputs/images/ |</text>
-<text x="454" y="301.90000000000003" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">outputs/videos/</text>
-<rect x="178" y="374" width="152" height="50" rx="8" ry="8" fill="#fdf4ff" stroke="#cc5de8" stroke-width="2"/>
-<text x="254" y="390.55" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#862e9c">POST</text>
-<text x="254" y="407.45" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#862e9c">api.agnes-ai.cn/v1</text>
-<rect x="378" y="374" width="152" height="50" rx="8" ry="8" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
-<text x="454" y="399" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#e67700">媒体类型?</text>
-<rect x="578" y="374" width="152" height="50" rx="8" ry="8" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
-<text x="654" y="390.55" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">图像: 同步返回</text>
-<text x="654" y="407.45" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">b64_json/url</text>
-<rect x="778" y="374" width="152" height="50" rx="8" ry="8" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
-<text x="854" y="399" text-anchor="middle" dominant-baseline="central" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1971c2">视频: 异步轮询 video_id</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="1375" viewBox="-28 -95 586 1375">
+<defs>
+    <marker id="fc-1-arrow" markerWidth="8" markerHeight="6"
+      refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <polygon points="0 0, 8 3, 0 6, 1.5 3" fill="#495057"/>
+    </marker>
+    <style>
+      @keyframes ai-fc-flow { to { stroke-dashoffset: -26; } }
+      .ai-fc-edge { animation: ai-fc-flow 1.2s linear infinite; }
+    </style>
+  </defs>
+<text x="265" y="-61" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#495057">Agnes Media MCP 工作流程</text>
+<text x="265" y="-42" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#868e96">不含 agnes 关键词时不激活</text>
+<g class="flowchart">
+
+<g class="edge" data-from="req" data-to="gate">
+<path d="M210,76 L210,106 Q210,116 210,126 L210,156" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="gate" data-to="skill">
+<path d="M265,236 L311.9126391569681,270.11828302324955 Q320,276 320,286 L320,316" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+<rect x="311.52" y="267" width="16.96" height="18" fill="white" rx="3" opacity="0.9"/>
+<text x="320" y="276" dy="0.35em" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="12" fill="#495057">是</text>
+</g>
+<g class="edge" data-from="gate" data-to="stop">
+<path d="M155,236 L108.08736084303189,270.11828302324955 Q100,276 100,286 L100,318" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+<rect x="91.52" y="267" width="16.96" height="18" fill="white" rx="3" opacity="0.9"/>
+<text x="100" y="276" dy="0.35em" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="12" fill="#495057">否</text>
+</g>
+<g class="edge" data-from="skill" data-to="mcp">
+<path d="M320,376 L320,406 Q320,416 320,426 L320,456" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="mcp" data-to="api">
+<path d="M320,516 L320,546 Q320,556 320,566 L320,596" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="api" data-to="branch">
+<path d="M320,656 L320,686 Q320,696 320,706 L320,736" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="branch" data-to="img">
+<path d="M265,816 L218.0873608430319,850.1182830232495 Q210,856 210,866 L210,896" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+<rect x="198.04" y="847" width="23.919999999999998" height="18" fill="white" rx="3" opacity="0.9"/>
+<text x="210" y="856" dy="0.35em" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="12" fill="#495057">图像</text>
+</g>
+<g class="edge" data-from="branch" data-to="vid">
+<path d="M375,816 L421.9126391569681,850.1182830232495 Q430,856 430,866 L430,896" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+<rect x="418.04" y="847" width="23.919999999999998" height="18" fill="white" rx="3" opacity="0.9"/>
+<text x="430" y="856" dy="0.35em" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="12" fill="#495057">视频</text>
+</g>
+<g class="edge" data-from="img" data-to="save">
+<path d="M210,956 L210,986 Q210,996 218.43661487732106,1001.3687549219316 L272.85714285714283,1036" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="vid" data-to="save">
+<path d="M430,956 L430,986 Q430,996 421.56338512267894,1001.3687549219316 L367.14285714285717,1036" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="save" data-to="done">
+<path d="M320,1096 L320,1126 Q320,1136 320,1146 L320,1176" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="node node-terminal" data-id="req">
+<rect x="130" y="20" width="160" height="56" rx="28" ry="28" fill="#ebfbee" stroke="#51cf66" stroke-width="2"/>
+<text x="210" y="48" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#2f9e44">用户请求</text>
+</g>
+<g class="node node-decision" data-id="gate">
+<polygon points="210,156 290,196 210,236 130,196" fill="#fff7e6" stroke="#f59f00" stroke-width="2" stroke-linejoin="round"/>
+<text x="210" y="196" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">含 agnes?</text>
+</g>
+<g class="node node-terminal" data-id="stop">
+<rect x="20" y="318" width="160" height="56" rx="28" ry="28" fill="#ebfbee" stroke="#51cf66" stroke-width="2"/>
+<text x="100" y="346" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#2f9e44">跳过</text>
+</g>
+<g class="node node-process" data-id="skill">
+<rect x="240" y="316" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="320" y="346" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">Skill: 决策+构造</text>
+</g>
+<g class="node node-process" data-id="mcp">
+<rect x="240" y="456" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="320" y="486" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">MCP: 适配+调用</text>
+</g>
+<g class="node node-io" data-id="api">
+<polygon points="254,596 400,596 386,656 240,656" fill="#fdf4ff" stroke="#cc5de8" stroke-width="2" stroke-linejoin="round"/>
+<text x="320" y="626" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#862e9c">Agnes API</text>
+</g>
+<g class="node node-decision" data-id="branch">
+<polygon points="320,736 400,776 320,816 240,776" fill="#fff7e6" stroke="#f59f00" stroke-width="2" stroke-linejoin="round"/>
+<text x="320" y="776" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">图像/视频?</text>
+</g>
+<g class="node node-process" data-id="img">
+<rect x="130" y="896" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="210" y="926" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">同步返回</text>
+</g>
+<g class="node node-process" data-id="vid">
+<rect x="350" y="896" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="430" y="926" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">异步轮询</text>
+</g>
+<g class="node node-process" data-id="save">
+<rect x="240" y="1036" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="320" y="1066" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">保存+展示</text>
+</g>
+<g class="node node-terminal" data-id="done">
+<rect x="240" y="1176" width="160" height="56" rx="28" ry="28" fill="#ebfbee" stroke="#51cf66" stroke-width="2"/>
+<text x="320" y="1204" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#2f9e44">完成</text>
+</g>
 </g>
 </svg>
