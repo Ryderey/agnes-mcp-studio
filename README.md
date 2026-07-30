@@ -25,10 +25,6 @@
   <img src="docs/workflow.svg" alt="Agnes Media MCP 工作流程" width="480" />
 </a>
 
-> 点击图片可查看原尺寸大图
-
-> 重新生成：`node docs/gen-workflow.mjs`（依赖 `ai-figure`）| 源文件 [docs/workflow.drawio](docs/workflow.drawio) 可用 draw.io 编辑
-
 **流程概览：**
 
 ```
