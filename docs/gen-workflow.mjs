@@ -10,58 +10,46 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const svg = fig(`
-figure flow
-direction: TB
-palette: antv
+figure swimlane
 title: Agnes Media MCP 工作流程
 subtitle: Skill（决策层）+ MCP Server（执行层）+ Agnes API（推理层）
 
-user1((用户发送请求))
-gate{包含 agnes 关键字?}
-reject((不激活，交给其他工具))
-intent[意图匹配: 图像 / 编辑 / 视频]
-decision{决策规则: 选择工具}
-tool_img[agnes_image_generate]
-tool_imgv2[agnes_image_generate_v2]
-tool_edit[agnes_image_edit]
-tool_video[agnes_video_generate]
-prompt[构造 Prompt]
-mcp[MCP Server 处理]
-api[/Agnes API 请求/]
-type_dec{媒体类型?}
-sync_img[图像同步返回 b64/url]
-async_vid[视频异步轮询 video_id]
-save[保存文件到 outputs/]
-present[Agent 展示结果]
-user2((用户获得媒体文件))
+section 用户
+  req((发送请求: 包含 agnes 关键词))
+  result((获得媒体文件))
 
-user1 --> gate
+section Skill 决策层
+  gate{关键字门控: 包含 agnes?}
+  reject((不激活, 交给其他工具))
+  intent[意图匹配: 图像/编辑/视频]
+  tools[选择工具: image_generate / v2 / edit / video]
+  prompt[构造 Prompt: 主体+场景+风格+光线+构图]
+  present[展示结果: Markdown 图片/路径/URL]
+
+section MCP Server
+  process[协议适配: payload构建 / Base64 / 8n+1对齐]
+  save[保存文件: outputs/images/ | outputs/videos/]
+
+section Agnes API
+  call[/POST api.agnes-ai.cn/v1/]
+  media{媒体类型?}
+  img_sync[图像: 同步返回 b64_json/url]
+  vid_async[视频: 异步轮询 video_id]
+
+req --> gate
 gate --> reject: 否
 gate --> intent: 是
-intent --> decision
-decision --> tool_img: 标准图像
-decision --> tool_imgv2: 高分辨率
-decision --> tool_edit: 编辑/合成
-decision --> tool_video: 视频
-tool_img --> prompt
-tool_imgv2 --> prompt
-tool_edit --> prompt
-tool_video --> prompt
-prompt --> mcp: MCP 调用
-mcp --> api: HTTPS POST
-api --> type_dec
-type_dec --> sync_img: 图像
-type_dec --> async_vid: 视频
-sync_img --> save
-async_vid --> save
+intent --> tools
+tools --> prompt
+prompt --> process: MCP 调用
+process --> call: HTTPS
+call --> media
+media --> img_sync: 图像
+media --> vid_async: 视频
+img_sync --> save
+vid_async --> save
 save --> present
-present --> user2
-
-group 用户层: user1, user2
-group Skill 决策层: gate, intent, decision, prompt, present
-group 工具选择: tool_img, tool_imgv2, tool_edit, tool_video
-group MCP 执行层: mcp, save
-group Agnes API 层: api, type_dec, sync_img, async_vid
+present --> result
 `);
 
 const outPath = join(__dirname, 'workflow.svg');

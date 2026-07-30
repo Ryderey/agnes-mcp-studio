@@ -1,0 +1,273 @@
+# Agnes Media MCP
+
+[中文](README.md)
+
+A FastMCP-based Agnes image and video generation MCP server (China edition).
+
+> **China / International edition:** The calling conventions for both editions are essentially identical. This documentation uses the China edition (`api.agnes-ai.cn`) as an example. To use the international edition, simply change `.cn` to `.com` in the Base URL (i.e. `https://api.agnes-ai.com/v1`) — all other parameters and usage remain exactly the same.
+
+This service reads credentials from environment variables. Do not commit real API keys to version control.
+
+## What Is This?
+
+This project consists of two parts, designed to be used **together**:
+
+| Component | File | Role |
+|-----------|------|------|
+| **MCP Server** | `src/agnes_media_mcp/` | Execution layer — receives tool calls, requests the Agnes API, saves generated results |
+| **Skill** | `SKILL.md` | Decision layer — tells the AI Agent when to activate, which tool to pick, how to craft prompts, and how to present results |
+
+In short: **Skill is the brain, MCP is the hands**. Installing only MCP without the Skill means the Agent doesn't know when to call these tools; installing only the Skill without MCP means the Agent knows what to do but has no tools available.
+
+## Workflow
+
+<a href="docs/workflow.svg" target="_blank">
+  <img src="docs/workflow.svg" alt="Agnes Media MCP Workflow" width="480" />
+</a>
+
+> Click the image to view full size
+
+> Regenerate: `node docs/gen-workflow.mjs` (requires `ai-figure`) | Source file [docs/workflow.drawio](docs/workflow.drawio) can be edited with draw.io
+
+**Flow overview:**
+
+```
+User request ─→ [② Contains "agnes"?] ─No─→ Not activated, defer to other tools
+                       │Yes
+                       ▼
+            ③ Intent matching (Skill: When to Use)
+                       │
+                       ▼
+            ④ Decision rules → Select tool
+             ├─ Standard image → agnes_image_generate
+             ├─ High-resolution → agnes_image_generate_v2 (1K-4K + ratio)
+             ├─ Image editing → agnes_image_edit
+             └─ Video → agnes_video_generate / submit+wait
+                       │
+                       ▼
+            ⑤ Craft prompt (Skill guidelines)
+                       │
+                       ▼
+            ⑥ MCP Server processing (payload / Base64 / 8n+1)
+                       │
+                       ▼
+            ⑦ Agnes API (api.agnes-ai.cn/v1)
+             ├─ Image: synchronous return b64_json / url
+             └─ Video: video_id → poll GET /agnesapi
+                       │
+                       ▼
+            ⑧ Save files → outputs/images/ | outputs/videos/
+                       │
+                       ▼
+            ⑨ Agent presents results (Markdown / path / URL)
+                       │
+                       ▼
+            ⑩ User receives media files
+```
+
+> The **Skill layer** (②③④⑤⑨) handles trigger detection, tool selection, prompt construction, and result presentation; the **MCP layer** (⑥⑧) handles protocol adaptation; the **API layer** (⑦) handles actual inference.
+
+## Tool List
+
+| Tool Name | Description |
+|-----------|-------------|
+| `agnes_image_generate` | Text-to-image / image-to-image (`agnes-image-2.0-flash`), exact pixel dimensions |
+| `agnes_image_generate_v2` | High-information-density image generation (`agnes-image-2.1-flash`), tiered sizes `1K`–`4K` + aspect ratio |
+| `agnes_image_edit` | Image editing / multi-image composition, reference images via `extra_body.image` |
+| `agnes_video_submit` | Submit a video generation task (`POST /videos`), returns `video_id` |
+| `agnes_video_status` | Query video task status (`GET /agnesapi?video_id=<VIDEO_ID>`) |
+| `agnes_video_wait` | Poll task until completion, failure, or timeout |
+| `agnes_video_generate` | Submit video task and wait for completion (submit + wait combo) |
+
+## Full Installation Guide
+
+> Prerequisite: [uv](https://docs.astral.sh/uv/) installed (one-line script, supports Windows / macOS / Linux).
+
+### Step 1: Install the Skill
+
+The Skill is a Markdown file that tells the AI Agent how to intelligently use these tools. Copy `SKILL.md` to your Agent's Skills directory:
+
+**Hermes:**
+```bash
+# Clone the repository (or just download SKILL.md)
+git clone https://github.com/Ryderey/agnes-mcp-studio
+
+# Copy Skill to Hermes skills directory
+cp agnes-mcp-studio/SKILL.md ~/.hermes/skills/agnes-media-generation.md
+```
+
+**Qoder / Cursor / other Skill-capable clients:**
+
+Copy `SKILL.md` to the corresponding Skills/Plugins directory, or import via the client's "Install Skill" feature.
+
+### Step 2: Configure the MCP Server
+
+Add the MCP server to your Agent's configuration file.
+
+**Generic JSON format** (Claude Desktop / Cursor / Qoder):
+
+```json
+{
+  "mcpServers": {
+    "agnes_media": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/Ryderey/agnes-mcp-studio",
+        "agnes-media-mcp"
+      ],
+      "env": {
+        "AGNES_API_KEY": "your_agnes_api_key_here"
+      }
+    }
+  }
+}
+```
+
+**Hermes YAML format:**
+
+```yaml
+mcp_servers:
+  agnes_media:
+    command: "uvx"
+    args:
+      - "--from"
+      - "git+https://github.com/Ryderey/agnes-mcp-studio"
+      - "agnes-media-mcp"
+    env:
+      AGNES_API_KEY: "your_agnes_api_key_here"
+      AGNES_OUTPUT_DIR: "/absolute/path/to/outputs"
+    timeout: 600
+    connect_timeout: 60
+```
+
+### Step 3: Obtain an API Key
+
+1. Log in to the [Agnes AI Console](https://www.agnes-ai.com)
+2. Navigate to the API Key management page, create and copy a key
+3. Paste the key into the `AGNES_API_KEY` field from the previous step
+
+### Step 4: Verify
+
+Restart your Agent and confirm the MCP service is connected:
+
+```bash
+# Hermes
+hermes mcp list
+hermes mcp test agnes_media
+```
+
+Other clients typically show MCP connection status in their settings UI.
+
+### Optional: Local Development Mode
+
+If you want to modify the source code or debug:
+
+```bash
+git clone https://github.com/Ryderey/agnes-mcp-studio
+cd agnes-mcp-studio
+uv sync
+cp .env.example .env   # Edit .env and fill in your API Key
+uv run agnes-media-mcp
+```
+
+## Usage Examples
+
+Once installed and configured, mention the **agnes** keyword in conversation to trigger. Here are real conversation examples:
+
+### Generate an Image
+
+> **You:** Use agnes to generate a cyberpunk cityscape at night, 16:9 wallpaper, 2K resolution
+>
+> **Agent:** Calls `agnes_image_generate_v2` (size=2K, ratio=16:9) → returns image file
+>
+> **You get:** A 2624×1472 image saved in the `outputs/images/` directory
+
+### Edit an Image
+
+> **You:** Use agnes to replace the background of this photo with a starry sky, keep the person unchanged [attached image]
+>
+> **Agent:** Calls `agnes_image_edit` (image_paths=[your image], prompt=...) → returns edited image
+
+### Generate a Video
+
+> **You:** Use agnes to make a 5-second video: a cat napping on a windowsill, sunlight slowly moving
+>
+> **Agent:** Calls `agnes_video_generate` (duration=5, resolution=720p) → waits 30s~3min → returns video file
+>
+> **You get:** An MP4 file saved in the `outputs/videos/` directory
+
+### Trigger Rules
+
+| What you say | Triggered? |
+|--------------|------------|
+| "Use agnes to draw a cat" | ✅ Triggered (contains agnes + image generation intent) |
+| "Generate an image for me" | ❌ Not triggered (no mention of agnes) |
+| "What is agnes?" | ❌ Not triggered (no generation intent) |
+| "AGNES generate a wallpaper" | ✅ Triggered (case-insensitive) |
+
+## Developer Reference
+
+### Local Verification
+
+```bash
+uv run python -c "from agnes_media_mcp.server import mcp; print('import ok')"
+uv run python -m pytest tests/ -v
+uv run fastmcp inspect src/agnes_media_mcp/server.py:mcp
+uv run fastmcp list src/agnes_media_mcp/server.py --json
+```
+
+### Direct Python API Calls
+
+Programmatic usage examples without going through an Agent:
+
+```python
+from agnes_media_mcp.server import agnes_image_generate, agnes_image_generate_v2, agnes_video_generate
+
+# Standard image generation
+result = agnes_image_generate(
+    prompt="A ceramic coffee mug on a steel table, soft lighting",
+    size="1024x1024",
+)
+
+# High-resolution image generation
+result = agnes_image_generate_v2(
+    prompt="Cyberpunk cityscape at night, neon reflections, cinematic quality",
+    size="2K",
+    ratio="16:9",
+)
+
+# Video generation
+result = agnes_video_generate(
+    prompt="Slow dolly-in shot, glass sculpture rotating in a gallery",
+    duration=5,
+    resolution="720p",
+    aspect_ratio="16:9",
+)
+```
+
+> `agnes_video_wait` and `agnes_video_generate` may run for several minutes; use shorter timeouts when testing.
+
+## Documentation
+
+For detailed API documentation, see the `docs/` directory:
+
+- [Image API Documentation](docs/image-api.md)
+- [Video API Documentation](docs/video-api.md)
+- [Configuration Guide](docs/configuration.md)
+
+## Notes
+
+- Default Base URL uses the China endpoint: `https://api.agnes-ai.cn/v1` (international: `https://api.agnes-ai.com/v1`)
+- `response_format` must be placed inside `extra_body`, not at the top level of the request body
+- Image-to-image does not use `tags: ["img2img"]`; reference images are passed via `extra_body.image`
+- `agnes_image_generate_v2` uses `agnes-image-2.1-flash`, supporting `1K`–`4K` tiered sizes + `ratio` aspect ratio
+- Video `num_frames` is automatically aligned to the `8n+1` rule (max 441)
+- Video status polling uses `video_id` with endpoint `GET /agnesapi?video_id=<VIDEO_ID>`
+- Video result URLs are extracted from the response's `metadata.url` field
+- The `mask_path` parameter returns a structured unsupported error (mask functionality is not documented in the current API)
+- Timeout responses include `video_id` and `last_response` for later polling
+
+## License
+
+[MIT License](LICENSE)

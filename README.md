@@ -1,6 +1,10 @@
 # Agnes Media MCP
 
+[English](README_EN.md)
+
 基于 FastMCP 的 Agnes 图像与视频生成 MCP 服务器（国内版）。
+
+> **国内版 / 国际版说明：** 国内版与国际版的调用方式基本一致，本文档以国内版（`api.agnes-ai.cn`）为例。如需使用国际版，只需将 Base URL 中的 `.cn` 改为 `.com`（即 `https://api.agnes-ai.com/v1`），其余参数和用法完全相同。
 
 本服务通过环境变量读取凭据，请勿将真实 API Key 放入版本控制文件。
 
@@ -263,3 +267,7 @@ result = agnes_video_generate(
 - 视频结果 URL 从响应的 `metadata.url` 字段提取
 - `mask_path` 参数会返回结构化不支持错误（当前文档未描述 mask 功能）
 - 超时响应包含 `video_id` 和 `last_response`，可稍后继续轮询
+
+## 许可证
+
+[MIT License](LICENSE)
