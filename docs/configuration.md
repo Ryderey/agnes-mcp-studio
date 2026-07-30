@@ -44,8 +44,6 @@ AGNES_OUTPUT_DIR=./outputs
 
 ### 通用 JSON 格式（Claude Desktop / Cursor / Qoder 等）
 
-<!-- TODO: 发布前将 "你的用户名" 替换为实际仓库地址 -->
-
 ```json
 {
   "mcpServers": {
@@ -53,7 +51,7 @@ AGNES_OUTPUT_DIR=./outputs
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/你的用户名/agnes-media-mcp",
+        "git+https://github.com/Ryderey/agnes-mcp-studio",
         "agnes-media-mcp"
       ],
       "env": {
@@ -75,7 +73,7 @@ mcp_servers:
     command: "uvx"
     args:
       - "--from"
-      - "git+https://github.com/你的用户名/agnes-media-mcp"
+      - "git+https://github.com/Ryderey/agnes-mcp-studio"
       - "agnes-media-mcp"
     env:
       AGNES_API_KEY: "sk-your-real-key-here"
@@ -251,13 +249,13 @@ WorkBuddy 支持通过自定义模型接入 Agnes 文本模型，并可通过 Sk
 ### 方式一：uvx 直接运行（无需 clone）
 
 ```bash
-uvx --from git+https://github.com/你的用户名/agnes-media-mcp agnes-media-mcp
+uvx --from git+https://github.com/Ryderey/agnes-mcp-studio agnes-media-mcp
 ```
 
 ### 方式二：本地开发
 
 ```bash
-git clone https://github.com/你的用户名/agnes-media-mcp
+git clone https://github.com/Ryderey/agnes-mcp-studio
 cd agnes-media-mcp
 uv sync
 ```
