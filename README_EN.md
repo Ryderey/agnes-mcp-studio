@@ -5,6 +5,8 @@
 A FastMCP-based Agnes image and video generation MCP server (China edition).
 
 > **China / International edition:** The calling conventions for both editions are essentially identical. This documentation uses the China edition (`api.agnes-ai.cn`) as an example. To use the international edition, simply change `.cn` to `.com` in the Base URL (i.e. `https://api.agnes-ai.com/v1`) — all other parameters and usage remain exactly the same.
+>
+> ⚠️ **Important: Accounts are NOT shared between the two platforms, and API keys are NOT interchangeable.** A key issued on the China platform (`agnes-ai.cn`) will not work on the international endpoint, and vice versa. You must register and obtain a separate key on the respective platform.
 
 This service reads credentials from environment variables. Do not commit real API keys to version control.
 
@@ -141,7 +143,7 @@ mcp_servers:
 
 ### Step 3: Obtain an API Key
 
-1. Log in to the [Agnes AI Console](https://www.agnes-ai.com)
+1. Log in to the [Agnes AI Console](https://www.agnes-ai.cn) (China) or [agnes-ai.com](https://www.agnes-ai.com) (International) — accounts are separate
 2. Navigate to the API Key management page, create and copy a key
 3. Paste the key into the `AGNES_API_KEY` field from the previous step
 
