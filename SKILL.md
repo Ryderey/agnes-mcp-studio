@@ -9,7 +9,7 @@ description: Use when the user explicitly mentions "agnes" (case-insensitive) AN
 
 MCP-based media generation skill providing text-to-image, image-to-image, image editing, text/image-to-video, and keyframe animation through Agnes AI models.
 
-**Models:** `agnes-image-2.0-flash` · `agnes-image-2.1-flash` · `agnes-video-v2.0`
+**Models:** `agnes-image-2.1-flash` · `agnes-video-v2.0`
 
 **Prerequisite:** The `agnes_media` MCP server must be configured and running. If tools are unavailable, ask the user to check their MCP configuration.
 
@@ -57,7 +57,7 @@ After the gate passes, match intent:
 2. **User requests high resolution, wallpaper, poster, 4K, or detailed scene**: Use `agnes_image_generate_v2` with appropriate `size` tier and `ratio`. Default to `size="2K"`, `ratio="16:9"` for wallpapers.
 3. **User provides reference images for editing/compositing**: Use `agnes_image_edit` with `image_paths`.
 4. **User provides a reference image but wants a NEW image in similar style**: Use `agnes_image_generate` or `_v2` with `image_urls`.
-5. **Video ≤ 18 seconds (all cases)**: Use `agnes_video_generate` directly.
+5. **Video ≤ 18 seconds (at default 24fps)**: Use `agnes_video_generate` directly.
 6. **Video requiring progress feedback or very long timeout**: Use `agnes_video_submit`, report `video_id` to user, then call `agnes_video_wait`.
 7. **Animate a still image**: Use `agnes_video_generate` with `image=<url>` and `mode="ti2vid"`.
 
@@ -109,7 +109,7 @@ Video generation is asynchronous. Follow this workflow:
 | ~3 seconds | `duration=3` | Quick preview |
 | ~5 seconds | `duration=5` | Default |
 | ~10 seconds | `duration=10` | Standard clip |
-| ~18 seconds | `duration=18` | Maximum |
+| ~18 seconds | `duration=18` | Maximum at 24fps; lower frame_rate allows longer |
 
 Resolution options: `"480p"`, `"720p"` (default), `"1080p"`.
 Aspect ratios: `"16:9"` (default), `"9:16"`, `"1:1"`, `"4:3"`, `"3:4"`.
@@ -127,11 +127,12 @@ Frame count is auto-aligned to the `8n+1` rule (max 441 frames at 24fps).
 | `3:4` | 864×1152 | 1728×2304 | 2592×3456 | 3456×4608 |
 | `3:2` | 1248×832 | 2496×1664 | 3744×2496 | 4992×3328 |
 | `2:3` | 832×1248 | 1664×2496 | 2496×3744 | 3328×4992 |
-| `21:9` | 1344×576 | 2688×1152 | 4032×1728 | 5376×2304 |
+| `21:9` | 1568×672 | 3136×1344 | 4704×2016 | 6272×2688 |
 
 ## Constraints
 
-- Input images must be publicly accessible HTTPS URLs or local file paths (local files are auto-converted to Base64 Data URI).
+- Image generation/editing inputs: publicly accessible HTTPS URLs, Data URIs, or local file paths (local files are auto-converted to Base64 Data URI).
+- Video inputs (`image` for ti2vid/keyframes): publicly accessible HTTPS URLs only. Local paths are NOT supported for video.
 - `mask_path` is not supported; if user asks for inpainting with mask, explain it's unavailable.
 - Video results may take 30s–5min depending on duration and server load.
 - The tool handles `response_format`, `extra_body`, and `num_frames` alignment internally — do not pass these manually.

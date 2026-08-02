@@ -6,13 +6,13 @@ Agnes Media MCP 提供两个图像生成工具和一个图像编辑工具，均�
 
 | 工具 | 模型 | 适用场景 |
 |------|------|----------|
-| `agnes_image_generate` | `agnes-image-2.0-flash` | 通用文生图、图生图，精确像素尺寸 |
+| `agnes_image_generate` | `agnes-image-2.1-flash` | 通用文生图、图生图，精确像素尺寸 |
 | `agnes_image_generate_v2` | `agnes-image-2.1-flash` | 高信息密度图像，分级尺寸 + 宽高比 |
-| `agnes_image_edit` | `agnes-image-2.0-flash` | 图像编辑、风格迁移、多图合成 |
+| `agnes_image_edit` | `agnes-image-2.1-flash` | 图像编辑、风格迁移、多图合成 |
 
 ## agnes_image_generate
 
-使用 `agnes-image-2.0-flash` 模型生成图像。
+使用 `agnes-image-2.1-flash` 模型生成图像。
 
 ### 参数
 
@@ -144,7 +144,7 @@ result = agnes.agnes_image_edit(
 ```json
 {
   "ok": true,
-  "model": "agnes-image-2.0-flash",
+  "model": "agnes-image-2.1-flash",
   "image_urls": ["https://storage.googleapis.com/agnes-aigc/xxx.png"],
   "local_paths": ["/path/to/outputs/images/agnes-image-xxx.png"],
   "save_errors": [],

@@ -20,7 +20,7 @@ load_dotenv()
 mcp = FastMCP("Agnes Media MCP")
 
 DEFAULT_BASE_URL = "https://api.agnes-ai.cn/v1"
-DEFAULT_IMAGE_MODEL = "agnes-image-2.0-flash"
+DEFAULT_IMAGE_MODEL = "agnes-image-2.1-flash"
 DEFAULT_IMAGE_MODEL_V2 = "agnes-image-2.1-flash"
 DEFAULT_VIDEO_MODEL = "agnes-video-v2.0"
 # 可编辑源码树中锚定项目根；安装到 site-packages 时退化到 CWD
@@ -48,6 +48,12 @@ def _env(name: str, default: str | None = None) -> str | None:
 
 def _base_url() -> str:
     return str(_env("AGNES_BASE_URL", DEFAULT_BASE_URL)).rstrip("/")
+
+
+def _domain_root() -> str:
+    """Return scheme + host only, without any path prefix (e.g. /v1)."""
+    parsed = urlparse(_base_url())
+    return f"{parsed.scheme}://{parsed.netloc}"
 
 
 def _image_model() -> str:
@@ -84,12 +90,27 @@ def _ensure_output_dir(kind: str) -> Path:
     return directory
 
 
+def _sanitize_filename(filename: str | None) -> str | None:
+    """Strip path components to prevent directory traversal via output_filename."""
+    if not filename:
+        return None
+    # Reject absolute paths (both POSIX and Windows styles)
+    if Path(filename).is_absolute() or filename.startswith(("/", "\\")):
+        return None
+    # Keep only the final path component (strips ../ and subdirectories)
+    name = Path(filename).name
+    if not name or name in {".", ".."}:
+        return None
+    return name
+
+
 def _request_json(
     method: str,
     path: str,
     *,
     json_body: dict[str, Any] | None = None,
     timeout_seconds: float = 120.0,
+    base_url: str | None = None,
 ) -> tuple[bool, dict[str, Any]]:
     api_key = _env("AGNES_API_KEY")
     if not api_key:
@@ -98,7 +119,7 @@ def _request_json(
             "Set AGNES_API_KEY in the environment before calling Agnes.",
         )
 
-    url = f"{_base_url()}{path}"
+    url = f"{base_url or _base_url()}{path}"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
@@ -394,6 +415,8 @@ def _agnes_image_generate_impl(
     if not prompt.strip():
         return _error("invalid_prompt", "Prompt must not be empty.")
 
+    output_filename = _sanitize_filename(output_filename)
+
     ok, normalized_or_error = _normalize_image_inputs(image_urls)
     if not ok:
         return normalized_or_error  # type: ignore[return-value]
@@ -534,6 +557,8 @@ def _build_video_payload(
         raise ValueError("duration must be greater than zero.")
     if frame_rate <= 0:
         raise ValueError("frame_rate must be greater than zero.")
+    if frame_rate > 60:
+        raise ValueError("frame_rate must not exceed 60.")
 
     width, height = _parse_dimensions(resolution, aspect_ratio)
     raw_frames = int(round(duration * frame_rate))
@@ -546,14 +571,18 @@ def _build_video_payload(
         "width": width,
         "height": height,
     }
-    if image:
-        payload["image"] = image
-    if mode:
-        payload["mode"] = mode
     if negative_prompt:
         payload["negative_prompt"] = negative_prompt
+    # Official API contract: image/mode belong inside extra_body, not at top level.
+    merged_extra: dict[str, Any] = {}
+    if image:
+        merged_extra["image"] = image
+    if mode:
+        merged_extra["mode"] = mode
     if extra_body:
-        payload.update(extra_body)
+        merged_extra.update(extra_body)
+    if merged_extra:
+        payload["extra_body"] = merged_extra
     return payload
 
 
@@ -595,7 +624,7 @@ def _looks_like_url(value: str) -> bool:
 
 
 def _extract_video_url(response: dict[str, Any]) -> str | None:
-    # Check metadata.url first (recommended by CN docs)
+    # Check metadata.url first (some responses use this location)
     metadata = response.get("metadata")
     if isinstance(metadata, dict):
         meta_url = metadata.get("url")
@@ -670,7 +699,11 @@ def _agnes_video_status_impl(video_id: str) -> dict[str, Any]:
     if not video_id.strip():
         return _error("invalid_video_id", "video_id must not be empty.")
 
-    ok, response = _request_json("GET", f"/agnesapi?video_id={quote(video_id, safe='')}")
+    ok, response = _request_json(
+        "GET",
+        f"/agnesapi?video_id={quote(video_id, safe='')}",
+        base_url=_domain_root(),
+    )
     if not ok:
         response["video_id"] = video_id
         return response
@@ -714,6 +747,8 @@ def _agnes_video_wait_impl(
             "invalid_poll_interval",
             "poll_interval_seconds must be greater than zero.",
         )
+
+    output_filename = _sanitize_filename(output_filename)
 
     attempts = max(1, math.ceil(timeout_seconds / poll_interval_seconds) + 1)
     last_response: dict[str, Any] | None = None
@@ -821,7 +856,7 @@ def agnes_image_generate(
     output_filename: str | None = None,
     extra_body: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Generate an image with Agnes Image 2.0 Flash and save returned image data when possible.
+    """Generate an image with Agnes Image 2.1 Flash and save returned image data when possible.
 
     Supports text-to-image and image-to-image (via image_urls). Size accepts exact
     pixel dimensions such as '1024x768', '1024x1024', or '768x1024'.
@@ -882,7 +917,7 @@ def agnes_image_edit(
 ) -> dict[str, Any]:
     """Edit or compose images through Agnes img2img using URLs or local files.
 
-    Uses agnes-image-2.0-flash by default. Pass image_paths as public URLs or
+    Uses agnes-image-2.1-flash by default. Pass image_paths as public URLs or
     local file paths. Multiple images enable multi-image composition.
     """
     return _agnes_image_edit_impl(

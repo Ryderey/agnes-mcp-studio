@@ -6,7 +6,7 @@
 |--------|------|--------|------|
 | `AGNES_API_KEY` | 是 | — | Agnes AI 平台 API Key |
 | `AGNES_BASE_URL` | 否 | `https://api.agnes-ai.cn/v1` | API 基础地址 |
-| `AGNES_IMAGE_MODEL` | 否 | `agnes-image-2.0-flash` | 图像生成默认模型 |
+| `AGNES_IMAGE_MODEL` | 否 | `agnes-image-2.1-flash` | 图像生成默认模型 |
 | `AGNES_IMAGE_MODEL_V2` | 否 | `agnes-image-2.1-flash` | 图像生成 v2 默认模型 |
 | `AGNES_VIDEO_MODEL` | 否 | `agnes-video-v2.0` | 视频生成默认模型 |
 | `AGNES_OUTPUT_DIR` | 否 | 源码树: `项目根/outputs`；安装后: `CWD/outputs` | 生成文件输出目录（建议使用绝对路径） |
@@ -32,7 +32,7 @@ cp .env.example .env
 ```bash
 AGNES_API_KEY=sk-your-real-key-here
 AGNES_BASE_URL=https://api.agnes-ai.cn/v1
-AGNES_IMAGE_MODEL=agnes-image-2.0-flash
+AGNES_IMAGE_MODEL=agnes-image-2.1-flash
 AGNES_IMAGE_MODEL_V2=agnes-image-2.1-flash
 AGNES_VIDEO_MODEL=agnes-video-v2.0
 AGNES_OUTPUT_DIR=./outputs
@@ -78,7 +78,7 @@ mcp_servers:
     env:
       AGNES_API_KEY: "sk-your-real-key-here"
       AGNES_BASE_URL: "https://api.agnes-ai.cn/v1"
-      AGNES_IMAGE_MODEL: "agnes-image-2.0-flash"
+      AGNES_IMAGE_MODEL: "agnes-image-2.1-flash"
       AGNES_IMAGE_MODEL_V2: "agnes-image-2.1-flash"
       AGNES_VIDEO_MODEL: "agnes-video-v2.0"
       AGNES_OUTPUT_DIR: "/absolute/path/to/outputs"
@@ -256,7 +256,7 @@ uvx --from git+https://github.com/Ryderey/agnes-mcp-studio agnes-media-mcp
 
 ```bash
 git clone https://github.com/Ryderey/agnes-mcp-studio
-cd agnes-media-mcp
+cd agnes-mcp-studio
 uv sync
 ```
 

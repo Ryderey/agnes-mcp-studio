@@ -27,8 +27,6 @@ In short: **Skill is the brain, MCP is the hands**. Installing only MCP without 
 
 > Click the image to view full size
 
-> Regenerate: `node docs/gen-workflow.mjs` (requires `ai-figure`) | Source file [docs/workflow.drawio](docs/workflow.drawio) can be edited with draw.io
-
 **Flow overview:**
 
 ```
@@ -71,7 +69,7 @@ User request ─→ [② Contains "agnes"?] ─No─→ Not activated, defer to 
 
 | Tool Name | Description |
 |-----------|-------------|
-| `agnes_image_generate` | Text-to-image / image-to-image (`agnes-image-2.0-flash`), exact pixel dimensions |
+| `agnes_image_generate` | Text-to-image / image-to-image (`agnes-image-2.1-flash`), exact pixel dimensions |
 | `agnes_image_generate_v2` | High-information-density image generation (`agnes-image-2.1-flash`), tiered sizes `1K`–`4K` + aspect ratio |
 | `agnes_image_edit` | Image editing / multi-image composition, reference images via `extra_body.image` |
 | `agnes_video_submit` | Submit a video generation task (`POST /videos`), returns `video_id` |
@@ -264,7 +262,7 @@ For detailed API documentation, see the `docs/` directory:
 - `agnes_image_generate_v2` uses `agnes-image-2.1-flash`, supporting `1K`–`4K` tiered sizes + `ratio` aspect ratio
 - Video `num_frames` is automatically aligned to the `8n+1` rule (max 441)
 - Video status polling uses `video_id` with endpoint `GET /agnesapi?video_id=<VIDEO_ID>`
-- Video result URLs are extracted from the response's `metadata.url` field
+- Video result URLs are extracted from the response's top-level `url` field (observed), with fallback to `metadata.url` (official docs)
 - The `mask_path` parameter returns a structured unsupported error (mask functionality is not documented in the current API)
 - Timeout responses include `video_id` and `last_response` for later polling
 

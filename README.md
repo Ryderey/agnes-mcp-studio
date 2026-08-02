@@ -67,7 +67,7 @@
 
 | 工具名 | 说明 |
 |--------|------|
-| `agnes_image_generate` | 文生图 / 图生图（`agnes-image-2.0-flash`），精确像素尺寸 |
+| `agnes_image_generate` | 文生图 / 图生图（`agnes-image-2.1-flash`），精确像素尺寸 |
 | `agnes_image_generate_v2` | 高信息密度图像生成（`agnes-image-2.1-flash`），分级尺寸 `1K`–`4K` + 宽高比 |
 | `agnes_image_edit` | 图像编辑 / 多图合成，通过 `extra_body.image` 传入参考图 |
 | `agnes_video_submit` | 提交视频生成任务（`POST /videos`），返回 `video_id` |
@@ -260,7 +260,7 @@ result = agnes_video_generate(
 - `agnes_image_generate_v2` 使用 `agnes-image-2.1-flash`，支持 `1K`–`4K` 分级尺寸 + `ratio` 宽高比
 - 视频 `num_frames` 自动对齐 `8n+1` 规则（上限 441）
 - 视频状态轮询使用 `video_id`，端点为 `GET /agnesapi?video_id=<VIDEO_ID>`
-- 视频结果 URL 从响应的 `metadata.url` 字段提取
+- 视频结果 URL 从响应的顶层 `url` 字段提取（实测），同时兼容 `metadata.url`（官方文档示例）
 - `mask_path` 参数会返回结构化不支持错误（当前文档未描述 mask 功能）
 - 超时响应包含 `video_id` 和 `last_response`，可稍后继续轮询
 

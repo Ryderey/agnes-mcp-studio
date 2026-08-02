@@ -31,7 +31,7 @@ Agnes Media MCP 提供异步视频生成能力，基于 `agnes-video-v2.0` 模�
 |------|------|------|--------|------|
 | `prompt` | string | 是 | — | 视频内容描述 |
 | `duration` | float | 否 | `5.0` | 目标时长（秒），自动转换为 `num_frames` |
-| `frame_rate` | int | 否 | `24` | 帧率（1–60） |
+| `frame_rate` | int | 否 | `24` | 帧率（1–60）。官方类型为 number，MCP 收窄为 int |
 | `resolution` | string | 否 | `"720p"` | 分辨率：`480p`、`720p`、`1080p` 或精确尺寸如 `1152x768` |
 | `aspect_ratio` | string | 否 | `"16:9"` | 宽高比：`16:9`、`9:16`、`1:1`、`4:3`、`3:4` |
 | `image` | string | 否 | `None` | 图生视频输入图像 URL |
@@ -85,6 +85,25 @@ result = agnes.agnes_video_submit(
     },
 )
 ```
+
+> **实际发送的 HTTP 请求体（关键帧示例）：**
+>
+> ```json
+> {
+>   "model": "agnes-video-v2.0",
+>   "prompt": "在两个关键帧之间生成平滑过渡，保持视觉一致性",
+>   "num_frames": 121,
+>   "frame_rate": 24,
+>   "width": 1280,
+>   "height": 720,
+>   "extra_body": {
+>     "mode": "keyframes",
+>     "image": ["https://example.com/keyframe1.png", "https://example.com/keyframe2.png"]
+>   }
+> }
+> ```
+>
+> `image`、`mode` 均嵌套在 `extra_body` 内（官方文档要求）。
 
 ### 响应
 
@@ -184,7 +203,7 @@ if result["ok"]:
 
 ## 完成响应
 
-任务完成时，视频 URL 位于 `metadata.url`：
+任务完成时，视频 URL 通过 `metadata.url` 返回（官方文档推荐位置）。实测中也可能出现在顶层 `url` 字段（此时 `metadata` 为 `null`）。本工具对两种位置均能自动提取：
 
 ```json
 {
@@ -192,16 +211,16 @@ if result["ok"]:
   "task_id": "task_YOUR_TASK_ID",
   "video_id": "video_YOUR_VIDEO_ID",
   "status": "completed",
-  "video_url": "https://platform-outputs.agnes-ai.space/videos/agnes-video-v2.0/task_xxx.mp4",
+  "video_url": "https://platform-outputs.agnes-ai.space/videos/agnes-video-v2.0/video_xxx.mp4",
   "local_path": "/path/to/outputs/videos/agnes-media-xxx.mp4",
   "raw": {
     "status": "completed",
     "progress": 100,
     "seconds": "5.0",
-    "size": "1280x768",
+    "size": "1152x768",
     "metadata": {
-      "url": "https://platform-outputs.agnes-ai.space/videos/...",
-      "size_mapping": { ... }
+      "url": "https://platform-outputs.agnes-ai.space/videos/agnes-video-v2.0/video_xxx.mp4",
+      "size_mapping": { "...": "..." }
     }
   }
 }

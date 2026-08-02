@@ -95,7 +95,7 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertEqual(payload["frame_rate"], 24)
         self.assertEqual(payload["width"], 1280)
         self.assertEqual(payload["height"], 720)
-        self.assertEqual(payload["seed"], 123)
+        self.assertEqual(payload["extra_body"], {"seed": 123})
 
     def test_video_payload_num_frames_capped_at_441(self):
         import agnes_media_mcp.server as agnes
@@ -126,9 +126,47 @@ class AgnesMediaMcpTests(unittest.TestCase):
             mode="ti2vid",
         )
 
-        self.assertEqual(payload["image"], "https://example.test/input.png")
-        self.assertEqual(payload["mode"], "ti2vid")
-        self.assertNotIn("image_url", payload)
+        # image and mode are nested inside extra_body per official API contract
+        self.assertEqual(payload["extra_body"]["image"], "https://example.test/input.png")
+        self.assertEqual(payload["extra_body"]["mode"], "ti2vid")
+        self.assertNotIn("image", payload)
+        self.assertNotIn("mode", payload)
+
+    def test_video_payload_keyframes_merges_into_extra_body(self):
+        import agnes_media_mcp.server as agnes
+
+        payload = agnes._build_video_payload(
+            prompt="smooth transition between keyframes",
+            model="agnes-video-test",
+            duration=5.0,
+            frame_rate=24,
+            resolution="720p",
+            aspect_ratio="16:9",
+            mode="keyframes",
+            extra_body={"image": ["https://a.png", "https://b.png"]},
+        )
+
+        self.assertEqual(
+            payload["extra_body"],
+            {"mode": "keyframes", "image": ["https://a.png", "https://b.png"]},
+        )
+        self.assertNotIn("image", payload)
+        self.assertNotIn("mode", payload)
+
+    def test_video_payload_rejects_frame_rate_above_60(self):
+        import agnes_media_mcp.server as agnes
+
+        with self.assertRaises(ValueError) as ctx:
+            agnes._build_video_payload(
+                prompt="too fast",
+                model="agnes-video-test",
+                duration=5.0,
+                frame_rate=61,
+                resolution="720p",
+                aspect_ratio="16:9",
+            )
+
+        self.assertIn("60", str(ctx.exception))
 
     def test_video_status_extracts_url_from_metadata(self):
         import agnes_media_mcp.server as agnes
@@ -160,7 +198,36 @@ class AgnesMediaMcpTests(unittest.TestCase):
             with mock.patch.object(agnes, "_request_json", return_value=(True, response)) as mock_req:
                 agnes._agnes_video_status_impl("vid-1")
 
-        mock_req.assert_called_once_with("GET", "/agnesapi?video_id=vid-1")
+        mock_req.assert_called_once_with(
+            "GET",
+            "/agnesapi?video_id=vid-1",
+            base_url="https://api.agnes-ai.cn",
+        )
+
+    def test_video_status_full_url_has_no_v1_prefix(self):
+        """The agnesapi query endpoint lives at the domain root, not under /v1."""
+        import agnes_media_mcp.server as agnes
+
+        response = {"id": "task-2", "video_id": "vid-2", "status": "completed"}
+        captured_urls = []
+
+        original_request_json = agnes._request_json
+
+        def spy_request_json(method, path, **kwargs):
+            base = kwargs.get("base_url") or agnes._base_url()
+            captured_urls.append(f"{base}{path}")
+            return True, response
+
+        with mock.patch.dict(os.environ, {"AGNES_API_KEY": "test-key"}, clear=False):
+            with mock.patch.object(agnes, "_request_json", side_effect=spy_request_json):
+                agnes._agnes_video_status_impl("vid-2")
+
+        self.assertEqual(len(captured_urls), 1)
+        self.assertEqual(
+            captured_urls[0],
+            "https://api.agnes-ai.cn/agnesapi?video_id=vid-2",
+        )
+        self.assertNotIn("/v1/", captured_urls[0])
 
     def test_video_submit_returns_video_id(self):
         import agnes_media_mcp.server as agnes
@@ -233,6 +300,26 @@ class AgnesMediaMcpTests(unittest.TestCase):
         # Over max capped at 441
         self.assertEqual(agnes._align_num_frames(500), 441)
         self.assertEqual(agnes._align_num_frames(1000), 441)
+
+    def test_sanitize_filename_blocks_traversal(self):
+        import agnes_media_mcp.server as agnes
+
+        # Normal filenames pass through
+        self.assertEqual(agnes._sanitize_filename("photo.png"), "photo.png")
+        self.assertEqual(agnes._sanitize_filename("my-video.mp4"), "my-video.mp4")
+        # None / empty returns None
+        self.assertIsNone(agnes._sanitize_filename(None))
+        self.assertIsNone(agnes._sanitize_filename(""))
+        # Absolute paths rejected
+        self.assertIsNone(agnes._sanitize_filename("/etc/passwd"))
+        self.assertIsNone(agnes._sanitize_filename("C:\\Windows\\evil.exe"))
+        # Traversal components stripped to basename
+        self.assertEqual(agnes._sanitize_filename("../../etc/passwd"), "passwd")
+        self.assertEqual(agnes._sanitize_filename("..\\..\\evil.png"), "evil.png")
+        self.assertEqual(agnes._sanitize_filename("sub/dir/file.png"), "file.png")
+        # Pure traversal rejected
+        self.assertIsNone(agnes._sanitize_filename(".."))
+        self.assertIsNone(agnes._sanitize_filename("."))
 
 
 if __name__ == "__main__":
