@@ -12,7 +12,7 @@ from urllib.parse import quote, urlparse
 
 import httpx
 from dotenv import load_dotenv
-from fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP
 
 
 load_dotenv()
