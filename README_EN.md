@@ -96,6 +96,8 @@ git clone https://github.com/Ryderey/agnes-mcp-studio
 cp agnes-mcp-studio/SKILL.md ~/.hermes/skills/agnes-media-generation.md
 ```
 
+> 🪞 **Mirror:** If GitHub is unreachable, use the Gitee mirror instead: `git clone https://gitee.com/baku_zyl/agnes-mcp-studio` (identical content; apply the same substitution to all commands below).
+
 **Qoder / Cursor / other Skill-capable clients:**
 
 Copy `SKILL.md` to the corresponding Skills/Plugins directory, or import via the client's "Install Skill" feature.
@@ -124,6 +126,8 @@ Add the MCP server to your Agent's configuration file.
 }
 ```
 
+> 🪞 **Mirror:** If GitHub is unreachable, replace `git+https://github.com/Ryderey/agnes-mcp-studio` with `git+https://gitee.com/baku_zyl/agnes-mcp-studio`.
+
 **Hermes YAML format:**
 
 ```yaml
@@ -132,7 +136,7 @@ mcp_servers:
     command: "uvx"
     args:
       - "--from"
-      - "git+https://github.com/Ryderey/agnes-mcp-studio"
+      - "git+https://github.com/Ryderey/agnes-mcp-studio"   # Mirror: git+https://gitee.com/baku_zyl/agnes-mcp-studio
       - "agnes-media-mcp"
     env:
       AGNES_API_KEY: "your_agnes_api_key_here"
@@ -164,7 +168,7 @@ Other clients typically show MCP connection status in their settings UI.
 If you want to modify the source code or debug:
 
 ```bash
-git clone https://github.com/Ryderey/agnes-mcp-studio
+git clone https://github.com/Ryderey/agnes-mcp-studio   # Mirror: git clone https://gitee.com/baku_zyl/agnes-mcp-studio
 cd agnes-mcp-studio
 uv sync
 cp .env.example .env   # Edit .env and fill in your API Key
