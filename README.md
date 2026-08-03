@@ -173,6 +173,33 @@ cp .env.example .env   # 编辑 .env 填入 API Key
 uv run agnes-media-mcp
 ```
 
+### 可选：预装到本地（快速启动）
+
+`uvx --from git+...` 首次启动需克隆仓库并安装依赖，可能耗时数十秒；若你的客户端 MCP 连接超时较短（如 WorkBuddy），建议先预装到本地：
+
+```bash
+# 一次性安装（国内用 gitee 源，海外用 github 源）
+uv tool install --from git+https://gitee.com/baku_zyl/agnes-mcp-studio agnes-media-mcp
+```
+
+安装后可执行文件位于 `~/.local/bin/agnes-media-mcp`（Windows：`%USERPROFILE%\.local\bin\agnes-media-mcp.exe`），MCP 配置直接指向它，启动仅需约 2 秒：
+
+```json
+{
+  "mcpServers": {
+    "agnes_media": {
+      "command": "C:\\Users\\<用户名>\\.local\\bin\\agnes-media-mcp.exe",
+      "args": [],
+      "env": {
+        "AGNES_API_KEY": "your_agnes_api_key_here"
+      }
+    }
+  }
+}
+```
+
+> macOS / Linux 将 `command` 换为 `~/.local/bin/agnes-media-mcp` 的绝对路径即可。后续升级只需重新执行 `uv tool install` 命令。
+
 ## 使用示例
 
 安装配置完成后，在对话中提及 **agnes** 关键词即可触发。以下是实际对话示例：
