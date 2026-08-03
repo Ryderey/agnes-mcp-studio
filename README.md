@@ -94,7 +94,7 @@ git clone https://github.com/Ryderey/agnes-mcp-studio
 cp agnes-mcp-studio/SKILL.md ~/.hermes/skills/agnes-media-generation.md
 ```
 
-> 🇨🇳 **国内用户：** 若无法访问 GitHub，请改用 Gitee 镜像：`git clone https://gitee.com/baku_zyl/agnes-mcp-studio`（内容完全一致，后文配置命令同理替换）。
+> 🇨🇳 **国内用户：** 若无法访问 GitHub，请改用 Gitee 镜像：`git clone https://gitee.com/zzol_wow/agnes-mcp-studio`（内容完全一致，后文配置命令同理替换）。
 
 **Qoder / Cursor / 其他支持 Skill 的客户端：**
 
@@ -124,7 +124,7 @@ cp agnes-mcp-studio/SKILL.md ~/.hermes/skills/agnes-media-generation.md
 }
 ```
 
-> 🇨🇳 **国内用户：** 将 `git+https://github.com/Ryderey/agnes-mcp-studio` 替换为 `git+https://gitee.com/baku_zyl/agnes-mcp-studio` 即可。
+> 🇨🇳 **国内用户：** 将 `git+https://github.com/Ryderey/agnes-mcp-studio` 替换为 `git+https://gitee.com/zzol_wow/agnes-mcp-studio` 即可。
 
 **Hermes YAML 格式：**
 
@@ -134,7 +134,7 @@ mcp_servers:
     command: "uvx"
     args:
       - "--from"
-      - "git+https://github.com/Ryderey/agnes-mcp-studio"   # 国内用户替换为 git+https://gitee.com/baku_zyl/agnes-mcp-studio
+      - "git+https://github.com/Ryderey/agnes-mcp-studio"   # 国内用户替换为 git+https://gitee.com/zzol_wow/agnes-mcp-studio
       - "agnes-media-mcp"
     env:
       AGNES_API_KEY: "your_agnes_api_key_here"
@@ -166,7 +166,7 @@ hermes mcp test agnes_media
 如果你想修改源码或调试：
 
 ```bash
-git clone https://github.com/Ryderey/agnes-mcp-studio   # 国内用户：git clone https://gitee.com/baku_zyl/agnes-mcp-studio
+git clone https://github.com/Ryderey/agnes-mcp-studio   # 国内用户：git clone https://gitee.com/zzol_wow/agnes-mcp-studio
 cd agnes-mcp-studio
 uv sync
 cp .env.example .env   # 编辑 .env 填入 API Key
@@ -179,7 +179,7 @@ uv run agnes-media-mcp
 
 ```bash
 # 一次性安装（国内用 gitee 源，海外用 github 源）
-uv tool install --from git+https://gitee.com/baku_zyl/agnes-mcp-studio agnes-media-mcp
+uv tool install --from git+https://gitee.com/zzol_wow/agnes-mcp-studio agnes-media-mcp
 ```
 
 安装后可执行文件位于 `~/.local/bin/agnes-media-mcp`（Windows：`%USERPROFILE%\.local\bin\agnes-media-mcp.exe`），MCP 配置直接指向它，启动仅需约 2 秒：

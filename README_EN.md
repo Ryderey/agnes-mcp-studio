@@ -96,7 +96,7 @@ git clone https://github.com/Ryderey/agnes-mcp-studio
 cp agnes-mcp-studio/SKILL.md ~/.hermes/skills/agnes-media-generation.md
 ```
 
-> 🪞 **Mirror:** If GitHub is unreachable, use the Gitee mirror instead: `git clone https://gitee.com/baku_zyl/agnes-mcp-studio` (identical content; apply the same substitution to all commands below).
+> 🪞 **Mirror:** If GitHub is unreachable, use the Gitee mirror instead: `git clone https://gitee.com/zzol_wow/agnes-mcp-studio` (identical content; apply the same substitution to all commands below).
 
 **Qoder / Cursor / other Skill-capable clients:**
 
@@ -126,7 +126,7 @@ Add the MCP server to your Agent's configuration file.
 }
 ```
 
-> 🪞 **Mirror:** If GitHub is unreachable, replace `git+https://github.com/Ryderey/agnes-mcp-studio` with `git+https://gitee.com/baku_zyl/agnes-mcp-studio`.
+> 🪞 **Mirror:** If GitHub is unreachable, replace `git+https://github.com/Ryderey/agnes-mcp-studio` with `git+https://gitee.com/zzol_wow/agnes-mcp-studio`.
 
 **Hermes YAML format:**
 
@@ -136,7 +136,7 @@ mcp_servers:
     command: "uvx"
     args:
       - "--from"
-      - "git+https://github.com/Ryderey/agnes-mcp-studio"   # Mirror: git+https://gitee.com/baku_zyl/agnes-mcp-studio
+      - "git+https://github.com/Ryderey/agnes-mcp-studio"   # Mirror: git+https://gitee.com/zzol_wow/agnes-mcp-studio
       - "agnes-media-mcp"
     env:
       AGNES_API_KEY: "your_agnes_api_key_here"
@@ -168,7 +168,7 @@ Other clients typically show MCP connection status in their settings UI.
 If you want to modify the source code or debug:
 
 ```bash
-git clone https://github.com/Ryderey/agnes-mcp-studio   # Mirror: git clone https://gitee.com/baku_zyl/agnes-mcp-studio
+git clone https://github.com/Ryderey/agnes-mcp-studio   # Mirror: git clone https://gitee.com/zzol_wow/agnes-mcp-studio
 cd agnes-mcp-studio
 uv sync
 cp .env.example .env   # Edit .env and fill in your API Key
@@ -181,7 +181,7 @@ uv run agnes-media-mcp
 
 ```bash
 # One-time install (use the gitee source in China, github source elsewhere)
-uv tool install --from git+https://gitee.com/baku_zyl/agnes-mcp-studio agnes-media-mcp
+uv tool install --from git+https://gitee.com/zzol_wow/agnes-mcp-studio agnes-media-mcp
 ```
 
 The executable is installed to `~/.local/bin/agnes-media-mcp` (Windows: `%USERPROFILE%\.local\bin\agnes-media-mcp.exe`). Point your MCP config directly at it — startup then takes only ~2 seconds:
