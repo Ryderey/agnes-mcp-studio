@@ -1,5 +1,7 @@
+import asyncio
 import os
 import tempfile
+import threading
 import unittest
 from unittest import mock
 
@@ -308,6 +310,29 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertEqual(status_impl.call_count, 2)
         sleep.assert_called_once_with(10)
 
+    def test_long_video_tools_run_outside_event_loop_thread(self):
+        import agnes_media_mcp.server as agnes
+
+        async def call(tool):
+            event_loop_thread = threading.get_ident()
+            result = await tool("value", download=False)
+            return event_loop_thread, result["thread_id"]
+
+        cases = (
+            (agnes.agnes_video_wait, "_agnes_video_wait_impl"),
+            (agnes.agnes_video_generate, "_agnes_video_generate_impl"),
+        )
+        for tool, implementation in cases:
+            with self.subTest(tool=tool.__name__):
+                with mock.patch.object(
+                    agnes,
+                    implementation,
+                    side_effect=lambda *args, **kwargs: {"thread_id": threading.get_ident()},
+                ):
+                    event_loop_thread, worker_thread = asyncio.run(call(tool))
+
+                self.assertNotEqual(event_loop_thread, worker_thread)
+
     def test_output_directories_are_created_from_env(self):
         import agnes_media_mcp.server as agnes
 
@@ -353,6 +378,12 @@ class AgnesMediaMcpTests(unittest.TestCase):
         # Pure traversal rejected
         self.assertIsNone(agnes._sanitize_filename(".."))
         self.assertIsNone(agnes._sanitize_filename("."))
+        # Windows-reserved names and trailing spaces/dots rejected on every OS
+        for filename in ("CON.png", "nul", "PrN.txt", "AUX", "COM1.mp4", "LPT9"):
+            with self.subTest(filename=filename):
+                self.assertIsNone(agnes._sanitize_filename(filename))
+        self.assertIsNone(agnes._sanitize_filename("photo.png."))
+        self.assertIsNone(agnes._sanitize_filename("photo.png "))
 
 
 if __name__ == "__main__":

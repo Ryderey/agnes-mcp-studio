@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import math
 import mimetypes
 import os
 import time
 import uuid
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 from urllib.parse import quote, urlparse
 
@@ -37,6 +38,17 @@ VIDEO_URL_FIELDS = (
     "result_url",
     "remixed_from_video_id",
 )
+
+_WINDOWS_RESERVED_STEMS = {
+    "CON",
+    "PRN",
+    "AUX",
+    "NUL",
+    "CONIN$",
+    "CONOUT$",
+    *(f"COM{number}" for number in range(1, 10)),
+    *(f"LPT{number}" for number in range(1, 10)),
+}
 
 
 def _env(name: str, default: str | None = None) -> str | None:
@@ -91,15 +103,19 @@ def _ensure_output_dir(kind: str) -> Path:
 
 
 def _sanitize_filename(filename: str | None) -> str | None:
-    """Strip path components to prevent directory traversal via output_filename."""
+    """Return a portable basename safe for use as output_filename."""
     if not filename:
         return None
-    # Reject absolute paths (both POSIX and Windows styles)
-    if Path(filename).is_absolute() or filename.startswith(("/", "\\")):
+    path = PureWindowsPath(filename)
+    if path.drive or filename.startswith(("/", "\\")):
         return None
-    # Keep only the final path component (strips ../ and subdirectories)
-    name = Path(filename).name
-    if not name or name in {".", ".."}:
+    name = path.name
+    if (
+        not name
+        or name in {".", ".."}
+        or name.endswith((" ", "."))
+        or name.split(".", 1)[0].upper() in _WINDOWS_RESERVED_STEMS
+    ):
         return None
     return name
 
@@ -980,7 +996,7 @@ def agnes_video_status(video_id: str) -> dict[str, Any]:
 
 
 @mcp.tool()
-def agnes_video_wait(
+async def agnes_video_wait(
     video_id: str,
     timeout_seconds: float = 600.0,
     poll_interval_seconds: float = 5.0,
@@ -988,7 +1004,9 @@ def agnes_video_wait(
     output_filename: str | None = None,
 ) -> dict[str, Any]:
     """Poll a video task by video_id until it completes, fails, or times out."""
-    return _agnes_video_wait_impl(
+    # ponytail: whole-call worker; make polling native-async if cancellation/load matters.
+    return await asyncio.to_thread(
+        _agnes_video_wait_impl,
         video_id,
         timeout_seconds=timeout_seconds,
         poll_interval_seconds=poll_interval_seconds,
@@ -998,7 +1016,7 @@ def agnes_video_wait(
 
 
 @mcp.tool()
-def agnes_video_generate(
+async def agnes_video_generate(
     prompt: str,
     duration: float = 5.0,
     frame_rate: int = 24,
@@ -1018,7 +1036,9 @@ def agnes_video_generate(
     Combines submit + wait into a single call. Returns the final video URL
     and optionally downloads the video file locally.
     """
-    return _agnes_video_generate_impl(
+    # ponytail: whole-call worker; make polling native-async if cancellation/load matters.
+    return await asyncio.to_thread(
+        _agnes_video_generate_impl,
         prompt,
         duration=duration,
         frame_rate=frame_rate,
