@@ -87,9 +87,22 @@ A young astronaut walking across a red desert planet, dust blowing in the wind,
 slow cinematic tracking shot, dramatic sunset lighting, realistic sci-fi style
 ```
 
+### Prompt Language Policy
+
+Resolve the prompt-language mode in this order:
+
+1. Follow any explicit preference in the current request.
+2. Reuse a preference the user explicitly set earlier in the conversation.
+3. Otherwise use `auto`.
+
+- **`auto` (default):** Translate non-English prompts into natural English and optimize them before calling Agnes. Do not ask for confirmation or show the translation unless requested.
+- **`original`:** If the user asks to keep Chinese, preserve the original language, or not translate, optimize the prompt without changing its language.
+- **`review`:** If the user asks to review or choose, show both the original and English prompts and wait for the user's selection before calling Agnes.
+
+Translate only the prompt sent to Agnes; continue communicating with the user in their language. Preserve intent, proper nouns, numeric constraints, camera directions, and required visual details. Keep quoted or on-screen text in its requested language unless the user explicitly asks to translate it. Apply the same mode to `negative_prompt`.
+
 ### Prompt Tips
 
-- Chinese prompts work well; no need to translate to English.
 - Use `negative_prompt` (video tools) to exclude unwanted elements, e.g. `"blurry, low quality, watermark"`.
 - Be specific about camera movement for video: "slow dolly in", "tracking shot", "static camera".
 

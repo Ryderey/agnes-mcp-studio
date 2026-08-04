@@ -45,7 +45,7 @@ User request ─→ [② Contains "agnes"?] ─No─→ Not activated, defer to 
              └─ Video → agnes_video_generate / submit+wait
                        │
                        ▼
-            ⑤ Craft prompt (Skill guidelines)
+            ⑤ Craft prompt + language policy (auto / original / review)
                        │
                        ▼
             ⑥ MCP Server processing (payload / Base64 / 8n+1)
@@ -206,6 +206,18 @@ The executable is installed to `~/.local/bin/agnes-media-mcp` (Windows: `%USERPR
 
 Once installed and configured, mention the **agnes** keyword in conversation to trigger. Here are real conversation examples:
 
+### Prompt Language Policy
+
+Before calling Agnes, the Skill translates non-English descriptions into natural English by default. This usually gives image and video models clearer style, camera, and composition instructions. Users can override the default in natural language at any time:
+
+| Mode | How to select it | Behavior |
+|------|------------------|----------|
+| `auto` (default) | No instruction needed | Translate and optimize in English without asking |
+| `original` | “Do not translate” or “keep the Chinese prompt” | Optimize the prompt while preserving its language |
+| `review` | “Show me both versions first” | Show the original and English prompts, then wait for the user's choice |
+
+An explicit preference remains active within the current conversation. Translation preserves proper nouns, numeric constraints, camera directions, and literal text that must appear in the result. It does not change the language used to communicate with the user.
+
 ### Generate an Image
 
 > **You:** Use agnes to generate a cyberpunk cityscape at night, 16:9 wallpaper, 2K resolution
@@ -251,6 +263,8 @@ uv run python -m pytest tests/ -v
 Programmatic usage examples without going through an Agent:
 
 ```python
+import asyncio
+
 from agnes_media_mcp.server import agnes_image_generate, agnes_image_generate_v2, agnes_video_generate
 
 # Standard image generation
@@ -267,14 +281,18 @@ result = agnes_image_generate_v2(
 )
 
 # Video generation
-result = agnes_video_generate(
-    prompt="Slow dolly-in shot, glass sculpture rotating in a gallery",
-    duration=5,
-    resolution="720p",
-    aspect_ratio="16:9",
+result = asyncio.run(
+    agnes_video_generate(
+        prompt="Slow dolly-in shot, glass sculpture rotating in a gallery",
+        duration=5,
+        resolution="720p",
+        aspect_ratio="16:9",
+    )
 )
 ```
 
+> The prompt-language policy is implemented by the Skill. Direct Python API or MCP tool calls send `prompt` unchanged and do not translate it automatically.
+>
 > `agnes_video_wait` and `agnes_video_generate` may run for several minutes; use shorter timeouts when testing.
 
 ## Documentation

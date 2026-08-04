@@ -43,7 +43,7 @@
           └─ 视频     → agnes_video_generate / submit+wait
                     │
                     ▼
-         ⑤ 构造 Prompt (Skill 指南)
+         ⑤ 构造 Prompt + 语言策略 (auto / original / review)
                     │
                     ▼
          ⑥ MCP Server 处理 (payload / Base64 / 8n+1)
@@ -204,6 +204,18 @@ uv tool install --from git+https://gitee.com/zzol_wow/agnes-mcp-studio agnes-med
 
 安装配置完成后，在对话中提及 **agnes** 关键词即可触发。以下是实际对话示例：
 
+### Prompt 语言策略
+
+Skill 默认在调用 Agnes 前将非英文描述优化为自然英文；这通常能让图像和视频模型更稳定地理解风格、镜头与构图。用户可随时通过自然语言覆盖默认行为：
+
+| 模式 | 如何选择 | 行为 |
+|------|----------|------|
+| `auto`（默认） | 无需说明 | 自动翻译并优化为英文，不额外询问 |
+| `original` | “不要翻译”“保留中文提示词” | 优化提示词，但保持原语言 |
+| `review` | “先给我中英文版本选择” | 展示原文和英文版，等待用户选择后再调用 |
+
+同一对话中明确设置的偏好会继续沿用。翻译会保留专有名词、数值、镜头要求及必须出现在画面中的原文文字；Agent 与用户的交流语言不会因此改变。
+
 ### 生成图像
 
 > **你：** 用 agnes 生成一张赛博朋克城市夜景，16:9 壁纸，2K 分辨率
@@ -249,6 +261,8 @@ uv run python -m pytest tests/ -v
 以下为无需通过 Agent 的编程调用示例：
 
 ```python
+import asyncio
+
 from agnes_media_mcp.server import agnes_image_generate, agnes_image_generate_v2, agnes_video_generate
 
 # 标准图像生成
@@ -265,14 +279,18 @@ result = agnes_image_generate_v2(
 )
 
 # 视频生成
-result = agnes_video_generate(
-    prompt="缓慢推进镜头，玻璃雕塑在画廊中旋转",
-    duration=5,
-    resolution="720p",
-    aspect_ratio="16:9",
+result = asyncio.run(
+    agnes_video_generate(
+        prompt="缓慢推进镜头，玻璃雕塑在画廊中旋转",
+        duration=5,
+        resolution="720p",
+        aspect_ratio="16:9",
+    )
 )
 ```
 
+> Prompt 语言策略由 Skill 层执行。直接调用 Python API 或 MCP 工具时，`prompt` 会按原样发送，不会自动翻译。
+>
 > `agnes_video_wait` 和 `agnes_video_generate` 可能运行数分钟，测试时建议使用较短超时。
 
 ## 文档
