@@ -4,7 +4,7 @@
 
 基于 FastMCP 的 Agnes 图像与视频生成 MCP 服务器（国内版）。
 
-> **国内版 / 国际版说明：** 国内版与国际版的调用方式基本一致，本文档以国内版（`api.agnes-ai.cn`）为例。如需使用国际版，只需将 Base URL 中的 `.cn` 改为 `.com`（即 `https://api.agnes-ai.com/v1`），其余参数和用法完全相同。
+> **国内版 / 国际版说明：** 本文档以国内版（`https://api.agnes-ai.cn/v1`）为例。国际版请将 `AGNES_BASE_URL` 设置为 `https://apihub.agnes-ai.com/v1`；请求参数和用法基本一致。
 >
 > ⚠️ **注意：两个平台的账号不互通，API Key 不共用。** 国内版 Key 无法在国际版端点使用，反之亦然。切换端点时必须在对应平台单独申请 Key。
 
@@ -242,8 +242,6 @@ uv tool install --from git+https://gitee.com/zzol_wow/agnes-mcp-studio agnes-med
 ```bash
 uv run python -c "from agnes_media_mcp.server import mcp; print('import ok')"
 uv run python -m pytest tests/ -v
-uv run fastmcp inspect src/agnes_media_mcp/server.py:mcp
-uv run fastmcp list src/agnes_media_mcp/server.py --json
 ```
 
 ### Python API 直接调用
@@ -283,7 +281,6 @@ result = agnes_video_generate(
 
 - [图像 API 文档](docs/image-api.md)
 - [视频 API 文档](docs/video-api.md)
-- [配置指南](docs/configuration.md)
 
 ## 注意事项
 

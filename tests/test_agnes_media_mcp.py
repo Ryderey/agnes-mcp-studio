@@ -126,11 +126,9 @@ class AgnesMediaMcpTests(unittest.TestCase):
             mode="ti2vid",
         )
 
-        # image and mode are nested inside extra_body per official API contract
-        self.assertEqual(payload["extra_body"]["image"], "https://example.test/input.png")
-        self.assertEqual(payload["extra_body"]["mode"], "ti2vid")
-        self.assertNotIn("image", payload)
-        self.assertNotIn("mode", payload)
+        self.assertEqual(payload["image"], "https://example.test/input.png")
+        self.assertEqual(payload["mode"], "ti2vid")
+        self.assertNotIn("extra_body", payload)
 
     def test_video_payload_keyframes_merges_into_extra_body(self):
         import agnes_media_mcp.server as agnes
@@ -274,6 +272,41 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertEqual(result["error"]["code"], "timeout")
         self.assertEqual(result["video_id"], "video-123")
         self.assertEqual(result["last_response"], status_response)
+
+    def test_video_wait_retries_transient_status_errors(self):
+        import agnes_media_mcp.server as agnes
+
+        rate_limited = {
+            "ok": False,
+            "error": {
+                "code": "http_error",
+                "message": "Agnes returned a non-success HTTP response.",
+                "details": {"status_code": 429},
+            },
+        }
+        completed = {
+            "ok": True,
+            "task_id": "task-123",
+            "video_id": "video-123",
+            "status": "completed",
+            "video_url": "https://cdn.example.test/video.mp4",
+            "raw": {"status": "completed"},
+        }
+
+        with mock.patch.object(
+            agnes, "_agnes_video_status_impl", side_effect=[rate_limited, completed]
+        ) as status_impl:
+            with mock.patch.object(agnes.time, "sleep") as sleep:
+                result = agnes._agnes_video_wait_impl(
+                    "video-123",
+                    timeout_seconds=20,
+                    poll_interval_seconds=10,
+                    download=False,
+                )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(status_impl.call_count, 2)
+        sleep.assert_called_once_with(10)
 
     def test_output_directories_are_created_from_env(self):
         import agnes_media_mcp.server as agnes

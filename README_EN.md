@@ -4,7 +4,7 @@
 
 A FastMCP-based Agnes image and video generation MCP server (China edition).
 
-> **China / International edition:** The calling conventions for both editions are essentially identical. This documentation uses the China edition (`api.agnes-ai.cn`) as an example. To use the international edition, simply change `.cn` to `.com` in the Base URL (i.e. `https://api.agnes-ai.com/v1`) — all other parameters and usage remain exactly the same.
+> **China / International edition:** This documentation uses the China endpoint (`https://api.agnes-ai.cn/v1`). For the international edition, set `AGNES_BASE_URL` to `https://apihub.agnes-ai.com/v1`; request parameters and usage are otherwise essentially the same.
 >
 > ⚠️ **Important: Accounts are NOT shared between the two platforms, and API keys are NOT interchangeable.** A key issued on the China platform (`agnes-ai.cn`) will not work on the international endpoint, and vice versa. You must register and obtain a separate key on the respective platform.
 
@@ -244,8 +244,6 @@ Once installed and configured, mention the **agnes** keyword in conversation to 
 ```bash
 uv run python -c "from agnes_media_mcp.server import mcp; print('import ok')"
 uv run python -m pytest tests/ -v
-uv run fastmcp inspect src/agnes_media_mcp/server.py:mcp
-uv run fastmcp list src/agnes_media_mcp/server.py --json
 ```
 
 ### Direct Python API Calls
@@ -285,11 +283,10 @@ For detailed API documentation, see the `docs/` directory:
 
 - [Image API Documentation](docs/image-api.md)
 - [Video API Documentation](docs/video-api.md)
-- [Configuration Guide](docs/configuration.md)
 
 ## Notes
 
-- Default Base URL uses the China endpoint: `https://api.agnes-ai.cn/v1` (international: `https://api.agnes-ai.com/v1`)
+- Default Base URL uses the China endpoint: `https://api.agnes-ai.cn/v1` (international: `https://apihub.agnes-ai.com/v1`)
 - `response_format` must be placed inside `extra_body`, not at the top level of the request body
 - Image-to-image does not use `tags: ["img2img"]`; reference images are passed via `extra_body.image`
 - `agnes_image_generate_v2` uses `agnes-image-2.1-flash`, supporting `1K`–`4K` tiered sizes + `ratio` aspect ratio

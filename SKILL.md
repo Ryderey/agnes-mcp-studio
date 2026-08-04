@@ -147,6 +147,7 @@ Frame count is auto-aligned to the `8n+1` rule (max 441 frames at 24fps).
 | `http_error` (400) | Invalid parameters | Check size/ratio values against reference table |
 | `http_error` (401) | Invalid API key | Ask user to verify their key |
 | `http_error` (429) | Rate limited | Wait a moment and retry |
+| `http_error` (503) | Agnes service temporarily unavailable | Wait a moment and retry |
 | `timeout` | Video task timed out | Report `video_id` for later status check |
 | `task_failed` | Video generation failed | Report error details, suggest retrying with simpler prompt |
 

@@ -573,16 +573,19 @@ def _build_video_payload(
     }
     if negative_prompt:
         payload["negative_prompt"] = negative_prompt
-    # Official API contract: image/mode belong inside extra_body, not at top level.
-    merged_extra: dict[str, Any] = {}
-    if image:
-        merged_extra["image"] = image
-    if mode:
+    if mode == "keyframes":
+        merged_extra = dict(extra_body or {})
+        if image:
+            merged_extra["image"] = [image]
         merged_extra["mode"] = mode
-    if extra_body:
-        merged_extra.update(extra_body)
-    if merged_extra:
         payload["extra_body"] = merged_extra
+    else:
+        if image:
+            payload["image"] = image
+        if mode:
+            payload["mode"] = mode
+        if extra_body:
+            payload["extra_body"] = dict(extra_body)
     return payload
 
 
@@ -756,6 +759,12 @@ def _agnes_video_wait_impl(
     for attempt in range(attempts):
         last_response = _agnes_video_status_impl(video_id)
         if not last_response.get("ok"):
+            error = last_response.get("error")
+            details = error.get("details") if isinstance(error, dict) else None
+            status_code = details.get("status_code") if isinstance(details, dict) else None
+            if status_code in {429, 503} and attempt < attempts - 1:
+                time.sleep(poll_interval_seconds)
+                continue
             return last_response
 
         status = str(last_response.get("status") or "").lower()

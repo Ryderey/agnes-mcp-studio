@@ -103,7 +103,7 @@ result = agnes.agnes_video_submit(
 > }
 > ```
 >
-> `image`、`mode` 均嵌套在 `extra_body` 内（官方文档要求）。
+> 普通图生视频通过请求体顶层的 `image`（以及可选的顶层 `mode`）传图；关键帧动画才使用 `extra_body.image` 数组和 `extra_body.mode="keyframes"`。
 
 ### 响应
 
@@ -157,6 +157,8 @@ print(result["status"])  # "queued" / "in_progress" / "completed" / "failed"
 | `poll_interval_seconds` | float | 否 | `5.0` | 轮询间隔（秒） |
 | `download` | bool | 否 | `True` | 完成后是否自动下载视频文件 |
 | `output_filename` | string | 否 | `None` | 自定义输出文件名 |
+
+轮询过程中遇到状态查询限流（429）或服务暂时不可用（503）时，工具会按 `poll_interval_seconds` 自动重试；其他查询错误会立即返回。
 
 ### 示例
 
