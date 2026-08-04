@@ -11,6 +11,4 @@ dist/
 
 node_modules/
 
-docs/configuration.md
-
 .DS_Store
