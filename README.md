@@ -149,6 +149,19 @@ mcp_servers:
 2. 进入 API Key 管理页面，创建并复制 Key
 3. 将 Key 填入上一步配置中的 `AGNES_API_KEY`
 
+### 环境变量
+
+| 变量名 | 必填 | 默认值 | 说明 |
+|--------|:----:|--------|------|
+| `AGNES_API_KEY` | 是 | — | Agnes AI 平台 API Key |
+| `AGNES_BASE_URL` | 否 | `https://api.agnes-ai.cn/v1` | API 基础地址（国际版为 `https://apihub.agnes-ai.com/v1`） |
+| `AGNES_IMAGE_MODEL` | 否 | `agnes-image-2.1-flash` | `agnes_image_generate` / `agnes_image_edit` 默认模型 |
+| `AGNES_IMAGE_MODEL_V2` | 否 | `agnes-image-2.1-flash` | `agnes_image_generate_v2` 默认模型 |
+| `AGNES_VIDEO_MODEL` | 否 | `agnes-video-v2.0` | 视频生成默认模型 |
+| `AGNES_OUTPUT_DIR` | 否 | 源码树：`项目根/outputs`；安装后：`CWD/outputs` | 生成文件输出目录（建议配置绝对路径） |
+
+本地开发模式也可将变量写入 `.env` 文件（参考 `.env.example`，启动时自动加载）。切换国内 / 国际端点时，必须同时更换为对应平台签发的 Key。
+
 ### 第四步：验证
 
 重启 Agent 后，确认 MCP 服务已连接：
@@ -299,6 +312,7 @@ result = asyncio.run(
 
 - [图像 API 文档](docs/image-api.md)
 - [视频 API 文档](docs/video-api.md)
+- [配置指南](docs/configuration.md)
 
 ## 注意事项
 
