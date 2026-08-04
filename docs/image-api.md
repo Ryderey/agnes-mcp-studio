@@ -147,8 +147,7 @@ result = agnes.agnes_image_edit(
   "model": "agnes-image-2.1-flash",
   "image_urls": ["https://storage.googleapis.com/agnes-aigc/xxx.png"],
   "local_paths": ["/path/to/outputs/images/agnes-image-xxx.png"],
-  "save_errors": [],
-  "raw": { "created": 1780000000, "data": [...] }
+  "save_errors": []
 }
 ```
 
@@ -159,7 +158,8 @@ result = agnes.agnes_image_edit(
 | `image_urls` | 远程图像 URL 列表 |
 | `local_paths` | 已下载到本地的文件路径列表 |
 | `save_errors` | 保存过程中的错误（如有） |
-| `raw` | API 原始响应 |
+
+成功响应仅返回上述归一化字段，不返回 API 完整原始响应或 Base64/Data URI。HTTP 错误仍在 `error.details.body` 中保留服务端响应，便于排查。
 
 ## 重要约束
 

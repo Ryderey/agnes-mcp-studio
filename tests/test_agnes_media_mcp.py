@@ -77,6 +77,39 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertEqual(result["error"]["code"], "unsupported_parameter")
         request_json.assert_not_called()
 
+    def test_image_success_omits_raw_and_data_url(self):
+        import agnes_media_mcp.server as agnes
+
+        response = {
+            "created": 1780000000,
+            "data": [{"url": "data:image/png;base64,iVBORw0KGgo="}],
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with mock.patch.dict(os.environ, {"AGNES_OUTPUT_DIR": temp_dir}, clear=False):
+                with mock.patch.object(agnes, "_request_json", return_value=(True, response)):
+                    result = agnes._agnes_image_generate_impl("a validation image")
+
+        self.assertTrue(result["ok"])
+        self.assertNotIn("raw", result)
+        self.assertEqual(result["image_urls"], [])
+        self.assertEqual(len(result["local_paths"]), 1)
+
+    def test_provider_error_body_is_preserved(self):
+        import agnes_media_mcp.server as agnes
+
+        error = {
+            "ok": False,
+            "error": {
+                "code": "http_error",
+                "message": "provider error",
+                "details": {"status_code": 400, "body": {"message": "invalid size"}},
+            },
+        }
+        with mock.patch.object(agnes, "_request_json", return_value=(False, error)):
+            result = agnes._agnes_image_generate_impl("a validation image")
+
+        self.assertEqual(result, error)
+
     def test_video_payload_converts_duration_and_aligns_to_8n_plus_1(self):
         import agnes_media_mcp.server as agnes
 
@@ -175,6 +208,9 @@ class AgnesMediaMcpTests(unittest.TestCase):
             "id": "task-123",
             "video_id": "video-456",
             "status": "completed",
+            "progress": 100,
+            "seconds": "5.0",
+            "size": "1152x768",
             "metadata": {
                 "url": "https://cdn.example.test/video.mp4",
             },
@@ -188,6 +224,10 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertEqual(result["video_id"], "video-456")
         self.assertEqual(result["status"], "completed")
         self.assertEqual(result["video_url"], "https://cdn.example.test/video.mp4")
+        self.assertEqual(result["progress"], 100)
+        self.assertEqual(result["seconds"], "5.0")
+        self.assertEqual(result["size"], "1152x768")
+        self.assertNotIn("raw", result)
 
     def test_video_status_uses_agnesapi_endpoint(self):
         import agnes_media_mcp.server as agnes
@@ -237,6 +277,9 @@ class AgnesMediaMcpTests(unittest.TestCase):
             "task_id": "task-abc",
             "video_id": "video-xyz",
             "status": "queued",
+            "progress": 0,
+            "seconds": "5.0",
+            "size": "1152x768",
         }
 
         with mock.patch.dict(os.environ, {"AGNES_API_KEY": "test-key"}, clear=False):
@@ -247,6 +290,8 @@ class AgnesMediaMcpTests(unittest.TestCase):
         self.assertEqual(result["task_id"], "task-abc")
         self.assertEqual(result["video_id"], "video-xyz")
         self.assertEqual(result["status"], "queued")
+        self.assertEqual(result["progress"], 0)
+        self.assertNotIn("raw", result)
 
     def test_video_wait_times_out_with_last_response(self):
         import agnes_media_mcp.server as agnes
@@ -307,8 +352,37 @@ class AgnesMediaMcpTests(unittest.TestCase):
                 )
 
         self.assertTrue(result["ok"])
+        self.assertNotIn("raw", result)
         self.assertEqual(status_impl.call_count, 2)
         sleep.assert_called_once_with(10)
+
+    def test_video_generate_omits_submit_result_on_success_and_keeps_it_on_error(self):
+        import agnes_media_mcp.server as agnes
+
+        submit_result = {
+            "ok": True,
+            "video_id": "video-123",
+            "status": "queued",
+            "raw": {"video_id": "video-123", "status": "queued"},
+        }
+        with mock.patch.object(
+            agnes, "_agnes_video_submit_impl", return_value=submit_result
+        ):
+            with mock.patch.object(
+                agnes,
+                "_agnes_video_wait_impl",
+                return_value={"ok": True, "video_id": "video-123", "status": "completed"},
+            ):
+                success = agnes._agnes_video_generate_impl("a cat walking")
+            with mock.patch.object(
+                agnes,
+                "_agnes_video_wait_impl",
+                return_value={"ok": False, "error": {"code": "timeout"}},
+            ):
+                failure = agnes._agnes_video_generate_impl("a cat walking")
+
+        self.assertNotIn("submit_result", success)
+        self.assertEqual(failure["submit_result"], submit_result)
 
     def test_long_video_tools_run_outside_event_loop_thread(self):
         import agnes_media_mcp.server as agnes

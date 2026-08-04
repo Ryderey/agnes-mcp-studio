@@ -323,6 +323,7 @@ result = asyncio.run(
 - 视频 `num_frames` 自动对齐 `8n+1` 规则（上限 441）
 - 视频状态轮询使用 `video_id`，端点为 `GET /agnesapi?video_id=<VIDEO_ID>`
 - 视频结果 URL 从响应的顶层 `url` 字段提取（实测），同时兼容 `metadata.url`（官方文档示例）
+- 成功响应仅返回归一化关键字段，不返回完整 `raw`；HTTP 错误仍保留服务端响应正文
 - `mask_path` 参数会返回结构化不支持错误（当前文档未描述 mask 功能）
 - 超时响应包含 `video_id` 和 `last_response`，可稍后继续轮询
 

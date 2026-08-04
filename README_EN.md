@@ -311,6 +311,7 @@ For detailed API documentation, see the `docs/` directory:
 - Video `num_frames` is automatically aligned to the `8n+1` rule (max 441)
 - Video status polling uses `video_id` with endpoint `GET /agnesapi?video_id=<VIDEO_ID>`
 - Video result URLs are extracted from the response's top-level `url` field (observed), with fallback to `metadata.url` (official docs)
+- Successful responses expose normalized key fields without the full `raw` payload; HTTP errors retain the provider response body
 - The `mask_path` parameter returns a structured unsupported error (mask functionality is not documented in the current API)
 - Timeout responses include `video_id` and `last_response` for later polling
 

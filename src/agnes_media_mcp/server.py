@@ -378,7 +378,6 @@ def _persist_images(
         url = entry.get("url") or entry.get("image_url")
         b64_json = entry.get("b64_json")
         if isinstance(url, str):
-            urls.append(url)
             if url.startswith("data:"):
                 try:
                     local_paths.append(_save_data_url(url, directory, output_filename, index))
@@ -391,6 +390,7 @@ def _persist_images(
                         )["error"]
                     )
             else:
+                urls.append(url)
                 ok, path_or_error = _download_url(
                     url,
                     directory,
@@ -461,7 +461,6 @@ def _agnes_image_generate_impl(
         "image_urls": image_urls_out,
         "local_paths": local_paths,
         "save_errors": save_errors,
-        "raw": response,
     }
 
 
@@ -667,6 +666,30 @@ def _extract_video_url(response: dict[str, Any]) -> str | None:
     return None
 
 
+def _video_success_result(
+    response: dict[str, Any],
+    *,
+    fallback_video_id: str | None = None,
+    include_raw: bool = False,
+) -> dict[str, Any]:
+    result: dict[str, Any] = {
+        "ok": True,
+        "task_id": _extract_task_id(response) or fallback_video_id,
+        "video_id": _extract_video_id(response) or fallback_video_id,
+        "status": _extract_status(response),
+        "video_url": _extract_video_url(response),
+    }
+    for field in ("model", "progress", "seconds", "size", "created_at", "completed_at"):
+        value = response.get(field)
+        if value is not None:
+            result[field] = value
+    if response.get("error") is not None:
+        result["task_error"] = response["error"]
+    if include_raw:
+        result["raw"] = response
+    return result
+
+
 def _agnes_video_submit_impl(
     prompt: str,
     *,
@@ -678,6 +701,7 @@ def _agnes_video_submit_impl(
     mode: str | None = None,
     negative_prompt: str | None = None,
     extra_body: dict[str, Any] | None = None,
+    include_raw: bool = False,
 ) -> dict[str, Any]:
     if not prompt.strip():
         return _error("invalid_prompt", "Prompt must not be empty.")
@@ -702,19 +726,14 @@ def _agnes_video_submit_impl(
     if not ok:
         return response
 
-    task_id = _extract_task_id(response)
-    video_id = _extract_video_id(response)
-    return {
-        "ok": True,
-        "task_id": task_id,
-        "video_id": video_id,
-        "status": _extract_status(response),
-        "video_url": _extract_video_url(response),
-        "raw": response,
-    }
+    return _video_success_result(response, include_raw=include_raw)
 
 
-def _agnes_video_status_impl(video_id: str) -> dict[str, Any]:
+def _agnes_video_status_impl(
+    video_id: str,
+    *,
+    include_raw: bool = False,
+) -> dict[str, Any]:
     if not video_id.strip():
         return _error("invalid_video_id", "video_id must not be empty.")
 
@@ -727,14 +746,11 @@ def _agnes_video_status_impl(video_id: str) -> dict[str, Any]:
         response["video_id"] = video_id
         return response
 
-    return {
-        "ok": True,
-        "task_id": _extract_task_id(response) or video_id,
-        "video_id": _extract_video_id(response) or video_id,
-        "status": _extract_status(response),
-        "video_url": _extract_video_url(response),
-        "raw": response,
-    }
+    return _video_success_result(
+        response,
+        fallback_video_id=video_id,
+        include_raw=include_raw,
+    )
 
 
 def _download_video(
@@ -773,7 +789,7 @@ def _agnes_video_wait_impl(
     last_response: dict[str, Any] | None = None
 
     for attempt in range(attempts):
-        last_response = _agnes_video_status_impl(video_id)
+        last_response = _agnes_video_status_impl(video_id, include_raw=True)
         if not last_response.get("ok"):
             error = last_response.get("error")
             details = error.get("details") if isinstance(error, dict) else None
@@ -798,6 +814,7 @@ def _agnes_video_wait_impl(
                 else:
                     download_error = path_or_error["error"]  # type: ignore[index]
             result = dict(last_response)
+            result.pop("raw", None)
             result["local_path"] = local_path
             if download_error:
                 result["download_error"] = download_error
@@ -848,6 +865,7 @@ def _agnes_video_generate_impl(
         mode=mode,
         negative_prompt=negative_prompt,
         extra_body=extra_body,
+        include_raw=True,
     )
     if not submit_result.get("ok"):
         return submit_result
@@ -867,7 +885,8 @@ def _agnes_video_generate_impl(
         download=download,
         output_filename=output_filename,
     )
-    wait_result["submit_result"] = submit_result
+    if not wait_result.get("ok"):
+        wait_result["submit_result"] = submit_result
     return wait_result
 
 

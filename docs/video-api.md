@@ -113,8 +113,10 @@ result = agnes.agnes_video_submit(
   "task_id": "task_YOUR_TASK_ID",
   "video_id": "video_YOUR_VIDEO_ID",
   "status": "queued",
-  "video_url": null,
-  "raw": { ... }
+  "progress": 0,
+  "seconds": "5.0",
+  "size": "1152x768",
+  "video_url": null
 }
 ```
 
@@ -213,20 +215,15 @@ if result["ok"]:
   "task_id": "task_YOUR_TASK_ID",
   "video_id": "video_YOUR_VIDEO_ID",
   "status": "completed",
+  "progress": 100,
+  "seconds": "5.0",
+  "size": "1152x768",
   "video_url": "https://platform-outputs.agnes-ai.space/videos/agnes-video-v2.0/video_xxx.mp4",
-  "local_path": "/path/to/outputs/videos/agnes-media-xxx.mp4",
-  "raw": {
-    "status": "completed",
-    "progress": 100,
-    "seconds": "5.0",
-    "size": "1152x768",
-    "metadata": {
-      "url": "https://platform-outputs.agnes-ai.space/videos/agnes-video-v2.0/video_xxx.mp4",
-      "size_mapping": { "...": "..." }
-    }
-  }
+  "local_path": "/path/to/outputs/videos/agnes-media-xxx.mp4"
 }
 ```
+
+成功响应会将常用任务信息和 `metadata.url` 归一化到顶层，不返回完整 `raw`、重复 `metadata` 或提交阶段副本。HTTP 错误保留 `error.details.body`；超时或任务失败时，`last_response.raw` 保留最后一次服务端响应。
 
 ## 推荐参数
 
