@@ -1,5 +1,11 @@
 # 图像 API 文档
 
+> ⚠️ **本项目已停止维护，请改用 Skill 方案。**
+>
+> 推荐使用 [agnes-media-skill](https://github.com/Ryderey/agnes-media-skill)（[Gitee 镜像](https://gitee.com/zzol_wow/agnes-media-skill)）：零依赖 Skill，内置标准库 CLI，直接调用 Agnes API，**无需部署 MCP Server**。
+>
+> 本项目的模型与参数已落后于 Agnes 官方且不再跟进：图像仍为 `agnes-image-2.1-flash`（新方案默认 Image 2.5 Flash），视频仍为 `agnes-video-v2.0`（官方已下线）。仓库保留仅供存档与参考，请勿用于新部署。
+
 ## 概述
 
 Agnes Media MCP 提供两个图像生成工具和一个图像编辑工具，均通过 `POST /v1/images/generations` 端点调用。

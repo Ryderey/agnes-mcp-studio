@@ -2,6 +2,12 @@
 
 [中文](README.md)
 
+> ⚠️ **This project is no longer maintained. Use the Skill instead.**
+>
+> Use [agnes-media-skill](https://github.com/Ryderey/agnes-media-skill) ([Gitee mirror](https://gitee.com/zzol_wow/agnes-media-skill)): a zero-dependency Skill with a bundled standard-library CLI that calls the Agnes API directly — **no MCP server required**.
+>
+> This project's models and parameters are behind the Agnes API and will not be updated: images still use `agnes-image-2.1-flash` (the new skill defaults to Image 2.5 Flash), and video still uses `agnes-video-v2.0`, which Agnes has retired. The repository is kept for archival reference only; do not use it for new deployments.
+
 A FastMCP-based Agnes image and video generation MCP server (China edition).
 
 > **China / International edition:** This documentation uses the China endpoint (`https://api.agnes-ai.cn/v1`). For the international edition, set `AGNES_BASE_URL` to `https://apihub.agnes-ai.com/v1`; request parameters and usage are otherwise essentially the same.
